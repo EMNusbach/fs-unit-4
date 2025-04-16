@@ -1,32 +1,44 @@
-import {useState} from 'react';
+import { useState } from 'react';
+
 import TextDisplay from './TextDisplay';
 import TextEditor from './TextEditor';
+import Modal from './Modal';
 import classes from './TextsDisplayList.module.css'
 
 
+function TextsDisplayList({ isEditing, onStopEditing }) {
+    const [texts, setTexts] = useState([]);
 
-
-function TextsDisplayList() {
-    const [ enteredBody, setEnteredBody ] = useState('');
-    const [ enteredTitle, setEnteredTitle ] = useState('');
-
-    // Body change handler function
-    function bodyChangeHandler(event){
-        setEnteredBody(event.target.value);
-    }
-
-    // Title change handler function
-    function titleChangeHandler(event){
-        setEnteredTitle(event.target.value);
+    function addTextHandler(textData) {
+        setTexts((existingTexts) => [textData, ...existingTexts]);
     }
 
     return (
         <>
-            <TextEditor onBodyChange = {bodyChangeHandler} onTitleChange = {titleChangeHandler}/>
-            <ul className={classes.texts}>
-                <TextDisplay title={enteredTitle} body={enteredBody}/>
-                {/* <TextDisplay title="Text 2" body="Placeholder for display text 2" /> */}
-            </ul>
+            {isEditing && (
+                <Modal onClose={onStopEditing}>
+                    <TextEditor
+                        onCancel={onStopEditing}
+                        onAddText={addTextHandler}
+                    />
+                </Modal>
+            )}
+
+            {texts.length > 0 && (
+                <ul className={classes.texts}>
+                    {/* make sure key is unique */}
+                    {texts.map((text) => <TextDisplay key={text.title} title={text.title} body={text.body} />)}
+                </ul>
+            )}
+
+            {texts.length === 0 && (
+                <div style={{ textAlign: 'center', color: 'white' }}>
+                    <h2>There are no texts yet.</h2>
+                    <p>Start adding some!</p>
+                </div>
+            )}
+
+
         </>
 
     );

@@ -1,10 +1,10 @@
 import classes from './TextDisplay.module.css';
 
-function TextDisplay(props) {
+function TextDisplay({title, body}) {
   return (
     <li className={classes.textDisplay}>
-      <h2 className={classes.title}>{props.title}</h2>
-      <p className={classes.body}>{props.body}</p>
+      <h2 className={classes.title}>{title}</h2>
+      <p className={classes.body}>{body}</p>
     </li>
   );
 }
