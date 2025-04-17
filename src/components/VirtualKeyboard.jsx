@@ -26,7 +26,8 @@ function VirtualKeyboard({ onKeyPress }) {
   const [isUppercase, setIsUppercase] = useState(true);
   const [layoutMode, setLayoutMode] = useState('letters'); // letters | symbols
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
 
   const getCurrentLayout = () => {
     if (layoutMode === 'symbols') return symbolKeys;
@@ -95,6 +96,9 @@ function VirtualKeyboard({ onKeyPress }) {
 
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
+        <div className={classes.sidePanelRightButtons}>
+
+        <div className={classes.selectButtons}>
         <select onChange={(e) => onKeyPress?.(`{color:${e.target.value}}`)}>
             <option value="">Color</option>
             <option value="red">🟥 Red</option>
@@ -119,8 +123,20 @@ function VirtualKeyboard({ onKeyPress }) {
             <option value="large">Large</option>
             <option value="x-large">X-Large</option>
         </select>
-     </div>
+       </div>
+       <div className={classes.toggleButtons}>
+        <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`}
+            onClick={() => {const newBold = !isBold; setIsBold(newBold); onKeyPress?.(`{bold:${newBold}}`); }}>
+            <b>B</b>
+          </button>
 
+          <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`}
+            onClick={() => { const newItalic = !isItalic; setIsItalic(newItalic);onKeyPress?.(`{italic:${newItalic}}`);}} >
+            <i>I</i>
+          </button>
+        </div>
+      </div>
+    </div>
   
       {/* Emoji Picker */}
       {showEmojiPicker && (

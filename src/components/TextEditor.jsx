@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
 
-function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText }) {
+function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText,userName  }) {
     const [bodyParts, setBodyParts] = useState([]);
     const [titleParts, setTitleParts] = useState([]);
     const [focusedField, setFocusedField] = useState('title');
@@ -14,15 +14,23 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText }) {
 
     // Pre-fill the editor with selectedText (if exists)
     useEffect(() => {
-        if (selectedText) {
-            const defaultStyle = { ...currentStyle };
-            setTitleParts([{ text: selectedText.title, style: defaultStyle }]);
-            setBodyParts([{ text: selectedText.body, style: defaultStyle }]);
-        } else {
-            setTitleParts([]);
-            setBodyParts([]);
-        }
+      if (selectedText) {
+        setTitleParts(selectedText.titleParts || []);
+        setBodyParts(selectedText.bodyParts || []);
+      } else {
+        setTitleParts([]);
+        setBodyParts([]);
+      }
     }, [selectedText]);
+    
+    function getNextIdForUser(userName) {
+      const key = `lastTextId_${userName}`;
+      const lastId = parseInt(localStorage.getItem(key) || '0', 10);
+      const newId = lastId + 1;
+      localStorage.setItem(key, newId.toString());
+      return newId;
+    }
+    
 
     function handleVirtualKeyPress(key) {
         let updatedStyle = currentStyle;
@@ -51,6 +59,19 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText }) {
             setCurrentStyle(updatedStyle);
             return;
         }
+        if (key.startsWith('{bold:')) {
+          const value = key.slice(6, -1) === 'true';
+          updatedStyle = { ...currentStyle, fontWeight: value ? 'bold' : 'normal' };
+          setCurrentStyle(updatedStyle);
+          return;
+        }
+        if (key.startsWith('{italic:')) {
+          const value = key.slice(8, -1) === 'true';
+          updatedStyle = { ...currentStyle, fontStyle: value ? 'italic' : 'normal' };
+          setCurrentStyle(updatedStyle);
+          return;
+        }
+        
 
         // Handle deletion
         if (key === 'Delete' || key === '←') {
@@ -106,14 +127,20 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText }) {
     }, [onKeyFromKeyboard, currentStyle, focusedField]);
 
     function saveHandler(event) {
-        event.preventDefault();
-        const textData = {
-            title: titleParts.map(part => part.text).join(''),
-            body: bodyParts.map(part => part.text).join('')
-        };
-        onAddText(textData);
-        onCancel();
+      event.preventDefault();
+    
+      const textData = {
+        id: selectedText?.id || getNextIdForUser(userName),
+        titleParts,
+        bodyParts,
+        title: titleParts.map(part => part.text).join(''),
+        body: bodyParts.map(part => part.text).join('')
+      };
+    
+      onAddText(textData);
+      onCancel();
     }
+    
 
     return (
         <form className={classes.form} onSubmit={saveHandler}>

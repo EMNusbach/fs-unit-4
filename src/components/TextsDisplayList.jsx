@@ -20,9 +20,19 @@ function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, 
     }, [texts]);
 
     function addTextHandler(textData) {
-        setTexts((existingTexts) => [textData, ...existingTexts]);
-    }
-
+        setTexts((existingTexts) => {
+          const index = existingTexts.findIndex(text => text.id === textData.id);
+      
+          if (index !== -1) {
+            const updatedTexts = [...existingTexts];
+            updatedTexts[index] = textData;
+            return updatedTexts;
+          } else {
+            return [textData, ...existingTexts];
+          }
+        });
+      }
+      
     return (
         <>
             {isEditing && (
@@ -30,8 +40,9 @@ function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, 
                     <TextEditor
                         onCancel={onStopEditing}
                         onAddText={addTextHandler}
-                        selectedText={selectedText} 
+                        selectedText={selectedText}
                         onKeyFromKeyboard={onKeyFromKeyboard}
+                        userName={userName} 
                     />
                 </Modal>
             )}
@@ -40,12 +51,12 @@ function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, 
                 <ul className={classes.texts}>
                     {/* make sure key is unique */}
                     {texts.map((text) => (
-                        <TextDisplay
-                            key={text.title}
-                            title={text.title}
-                            body={text.body}
-                            onClick={() => onEditText(text)}
-                        />
+                     <TextDisplay
+                        key={text.id}
+                        titleParts={text.titleParts}
+                        bodyParts={text.bodyParts}
+                        onClick={() => onEditText(text)}
+                      />
                     ))}
                 </ul>
             )}

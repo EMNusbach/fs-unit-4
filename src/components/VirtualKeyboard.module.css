@@ -20,15 +20,26 @@
   }
   
   .sidePanelLeft,
-  .sidePanelRight {
+  .sidePanelRight,
+  .selectButtons,
+  .toggleButtons {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    margin: 0 10px;
-    padding-bottom: 40px;
+    margin: 10px 10px;
+    
   }
+  .sidePanelRightButtons {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 0 10px;
+    }
+
   
   .row {
     display: flex;
@@ -76,8 +87,9 @@
   }
 
   
-  .sidePanelRight select {
+  .selectButtons select {
     padding: 8px 12px;
+   
     border: none;
     width: 150px;
     border-radius: 6px;
@@ -87,11 +99,11 @@
     cursor: pointer;
   }
   
-  .sidePanelRight select:hover {
+  .selectButtons select:hover {
     background-color: #555;
   }
   
-  .sidePanelRight select option {
+  .selectButtons select option {
     background-color: #222;
     color: white;
   }
@@ -102,5 +114,23 @@
     margin-bottom: 5px;
     font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   }
+  .toggleButton {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .toggleButton:hover {
+    background-color: #666;
+  }
+  
+  .active {
+    background-color: #8c6cf7;
+  }
+  
   
   
