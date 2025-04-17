@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState,useRef} from 'react';
 import TextsDisplayList from './components/TextsDisplayList';
 import MainHeader from './components/MainHeader';
+import VirtualKeyboard from './components/VirtualKeyboard';
 
 function App() {
   const [modalIsVisible, setModalIsVisible] = useState(false);
@@ -16,17 +17,22 @@ function App() {
   }
 
   return (
-    <>
-      <MainHeader onCreateText={showModalHandler} />
-      <main>
-        <TextsDisplayList
-          isEditing={modalIsVisible}
-          onStopEditing={hideModalHandler}
-        />
+     <>
+      <div className="app-layout">
+        <MainHeader onCreateText={showModalHandler} />
 
-      </main>
+        <div className="content-area">
+          <main>
+            <TextsDisplayList
+              isEditing={modalIsVisible}
+              onStopEditing={hideModalHandler}
+            />
+          </main>
+        </div>
+
+        <VirtualKeyboard />
+      </div>
     </>
-
   );
 }
 

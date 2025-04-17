@@ -2,6 +2,7 @@
     background-color: #6233b9;
     padding: 1rem;
     width: 20rem;
+    padding-bottom: 230px; /* Space for the keyboard */
   }
   
   .form label {
