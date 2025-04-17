@@ -6,7 +6,7 @@ import Modal from './Modal';
 import classes from './TextsDisplayList.module.css'
 
 
-function TextsDisplayList({ isEditing, onStopEditing }) {
+function TextsDisplayList({ isEditing, onStopEditing, onKeyFromKeyboard }) {
     const [texts, setTexts] = useState([]);
 
     function addTextHandler(textData) {
@@ -20,6 +20,7 @@ function TextsDisplayList({ isEditing, onStopEditing }) {
                     <TextEditor
                         onCancel={onStopEditing}
                         onAddText={addTextHandler}
+                        onKeyFromKeyboard={onKeyFromKeyboard}
                     />
                 </Modal>
             )}

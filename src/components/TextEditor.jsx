@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 
 import classes from './TextEditor.module.css';
 
-function TextEditor({ onCancel, onAddText }) {
+function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
     const [enteredBody, setEnteredBody] = useState('');
     const [enteredTitle, setEnteredTitle] = useState('');
+    const [focusedField, setFocusedField] = useState('body');
 
-    // Body change handler function
+   /*  // Body change handler function
     function bodyChangeHandler(event) {
         setEnteredBody(event.target.value);
     }
@@ -14,8 +15,32 @@ function TextEditor({ onCancel, onAddText }) {
     // Title change handler function
     function titleChangeHandler(event) {
         setEnteredTitle(event.target.value);
-    }
-
+    } */
+    function handleVirtualKeyPress(key) {
+        if (key === '←') {
+          // DELETE
+          if (focusedField === 'title') {
+            setEnteredTitle((prev) => prev.slice(0, -1));
+          } else {
+            setEnteredBody((prev) => prev.slice(0, -1));
+          }
+        } else {
+          // ADD
+          if (focusedField === 'title') {
+            setEnteredTitle((prev) => prev + key);
+          } else {
+            setEnteredBody((prev) => prev + key);
+          }
+        }
+      }
+      useEffect(() => {
+        if (onKeyFromKeyboard) {
+          onKeyFromKeyboard((key) => {
+            handleVirtualKeyPress(key);
+          });
+        }
+      }, [onKeyFromKeyboard, focusedField]);
+    
     // Save text handler function
     function saveHandler(event) {
         event.preventDefault();
@@ -29,19 +54,36 @@ function TextEditor({ onCancel, onAddText }) {
 
     return (
         <form className={classes.form} onSubmit={saveHandler}>
-            <p>
-                <label htmlFor="title">Title</label>
-                <input type="text" id="title" required onChange={titleChangeHandler} />
-            </p>
-            <p>
-                <label htmlFor="body">Text</label>
-                <textarea id="body" required rows={5} onChange={bodyChangeHandler} />
-            </p>
-            <p className={classes.actions}>
-                <button type="button" onClick={onCancel}>Cancel</button>
-                <button>Save</button>
-            </p>
-        </form>
+        <div>
+          <label htmlFor="title">Title</label>
+          <div
+            id="title"
+            className={`${classes.input} ${focusedField === 'title' ? classes.focused : ''}`}
+            onClick={() => setFocusedField('title')}
+          >
+            {enteredTitle || <span className={classes.placeholder}>Enter title...</span>}
+            {focusedField === 'title' && <span className={classes.caret}></span>}
+          </div>
+        </div>
+      
+        <div>
+          <label htmlFor="body">Text</label>
+          <div
+            id="body"
+            className={`${classes.textarea} ${focusedField === 'body' ? classes.focused : ''}`}
+            onClick={() => setFocusedField('body')}
+          >
+            {enteredBody || <span className={classes.placeholder}>Enter text...</span>}
+            {focusedField === 'body' && <span className={classes.caret}></span>}
+          </div>
+        </div>
+      
+        <p className={classes.actions}>
+          <button type="button" onClick={onCancel}>Cancel</button>
+          <button>Save</button>
+        </p>
+      </form>
+      
     );
 }
 
