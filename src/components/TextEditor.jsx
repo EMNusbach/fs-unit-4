@@ -17,7 +17,7 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
         setEnteredTitle(event.target.value);
     } */
     function handleVirtualKeyPress(key) {
-        if (key === '←') {
+        if (key === 'Delete') {
           // DELETE
           if (focusedField === 'title') {
             setEnteredTitle((prev) => prev.slice(0, -1));
