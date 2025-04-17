@@ -5,7 +5,11 @@ import classes from './TextEditor.module.css';
 function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
     const [enteredBody, setEnteredBody] = useState('');
     const [enteredTitle, setEnteredTitle] = useState('');
-    const [focusedField, setFocusedField] = useState('body');
+    const [focusedField, setFocusedField] = useState('title');
+    const [fontColor, setFontColor] = useState('white');
+    const [fontSize, setFontSize] = useState('16px');
+    const [fontFamily, setFontFamily] = useState('Arial');
+
 
    /*  // Body change handler function
     function bodyChangeHandler(event) {
@@ -17,22 +21,35 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
         setEnteredTitle(event.target.value);
     } */
     function handleVirtualKeyPress(key) {
-        if (key === 'Delete') {
-          // DELETE
-          if (focusedField === 'title') {
+        if (key.startsWith('{color:')) {
+            const value = key.slice(7, -1);
+            setFontColor(value);
+        } else if (key.startsWith('{size:')) {
+            const value = key.slice(6, -1);
+            setFontSize(
+            value === 'small' ? '14px' :
+            value === 'medium' ? '18px' :
+            value === 'large' ? '22px' : '26px'
+            );
+        } else if (key.startsWith('{font:')) {
+            const value = key.slice(6, -1);
+            setFontFamily(value);
+        } else if (key === 'Delete' || key === '←') {
+            if (focusedField === 'title') {
             setEnteredTitle((prev) => prev.slice(0, -1));
-          } else {
+            } else {
             setEnteredBody((prev) => prev.slice(0, -1));
-          }
+            }
         } else {
-          // ADD
-          if (focusedField === 'title') {
+            // לוגיקת כתיבה רגילה
+            if (focusedField === 'title') {
             setEnteredTitle((prev) => prev + key);
-          } else {
+            } else {
             setEnteredBody((prev) => prev + key);
-          }
+            }
         }
-      }
+    }  
+      
       useEffect(() => {
         if (onKeyFromKeyboard) {
           onKeyFromKeyboard((key) => {
@@ -60,6 +77,11 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
             id="title"
             className={`${classes.input} ${focusedField === 'title' ? classes.focused : ''}`}
             onClick={() => setFocusedField('title')}
+            style={{
+                color: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily
+              }}
           >
             {enteredTitle || <span className={classes.placeholder}>Enter title...</span>}
             {focusedField === 'title' && <span className={classes.caret}></span>}
@@ -72,6 +94,11 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
             id="body"
             className={`${classes.textarea} ${focusedField === 'body' ? classes.focused : ''}`}
             onClick={() => setFocusedField('body')}
+            style={{
+                color: fontColor,
+                fontSize: fontSize,
+                fontFamily: fontFamily
+              }}
           >
             {enteredBody || <span className={classes.placeholder}>Enter text...</span>}
             {focusedField === 'body' && <span className={classes.caret}></span>}

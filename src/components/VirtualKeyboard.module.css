@@ -7,6 +7,26 @@
     padding: 10px;
     box-sizing: border-box;
     z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 200px;
+  }
+  
+  .mainKeyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidePanelLeft,
+  .sidePanelRight {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0 10px;
   }
   
   .row {
@@ -32,14 +52,25 @@
     background-color: #555;
   }
   
-  .keyWide {
-    flex: 1;
-    padding: 12px 0;
+  .keySpace {
     background-color: #444;
     color: white;
     font-size: 18px;
     border: none;
+    min-width: 240px;
     border-radius: 6px;
     cursor: pointer;
+  }
+  
+  .emojiWrapper {
+    position: absolute;
+    bottom: 240px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    max-width: 600px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
   
