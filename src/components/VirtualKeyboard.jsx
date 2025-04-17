@@ -94,13 +94,14 @@ function VirtualKeyboard({ onKeyPress }) {
       </div>
 
       <div className={classes.sidePanelRight}>
+        <label className={classes.label}>Text Style</label>
         <select onChange={(e) => onKeyPress?.(`{color:${e.target.value}}`)}>
             <option value="">Color</option>
-            <option value="red">Red</option>
-            <option value="green">Green</option>
-            <option value="blue">Blue</option>
-            <option value="orange">Orange</option>
-            <option value="black">Black</option>
+            <option value="red">🟥 Red</option>
+            <option value="green">🟩 Green</option>
+            <option value="blue">🟦 Blue</option>
+            <option value="orange">🟧 Orange</option>
+            <option value="black">⬛ Black</option>
         </select>
 
         <select onChange={(e) => onKeyPress?.(`{font:${e.target.value}}`)}>
