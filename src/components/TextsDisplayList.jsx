@@ -1,13 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import TextDisplay from './TextDisplay';
 import TextEditor from './TextEditor';
 import Modal from './Modal';
 import classes from './TextsDisplayList.module.css'
 
+let userName = "Bob"; // Temp
+
+const getInitialState = () => {
+    const texts = localStorage.getItem(userName);
+    return texts ? JSON.parse(texts) : [];
+}
 
 function TextsDisplayList({ isEditing, onStopEditing, onKeyFromKeyboard }) {
-    const [texts, setTexts] = useState([]);
+    const [texts, setTexts] = useState(getInitialState);
+
+    useEffect(() => {
+        localStorage.setItem(userName, JSON.stringify(texts));
+    },[texts]);
 
     function addTextHandler(textData) {
         setTexts((existingTexts) => [textData, ...existingTexts]);
