@@ -5,6 +5,7 @@ import VirtualKeyboard from './components/VirtualKeyboard';
 
 function App() {
   const [modalIsVisible, setModalIsVisible] = useState(false);
+  const [selectedText, setSelectedText] = useState(null);
   const keyHandlerRef = useRef(null);
 
   function handleKeyboardKey(key) {
@@ -14,7 +15,8 @@ function App() {
   }
 
   // Show modal handler function
-  function showModalHandler() {
+  function showModalHandler(textToEdit = null) {
+    setSelectedText(textToEdit);
     setModalIsVisible(true);
   }
 
@@ -33,6 +35,8 @@ function App() {
             <TextsDisplayList
               isEditing={modalIsVisible}
               onStopEditing={hideModalHandler}
+              onEditText={showModalHandler}
+              selectedText={selectedText} 
               onKeyFromKeyboard={(fn) => (keyHandlerRef.current = fn)}
             />
           </main>

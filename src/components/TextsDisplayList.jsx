@@ -12,12 +12,12 @@ const getInitialState = () => {
     return texts ? JSON.parse(texts) : [];
 }
 
-function TextsDisplayList({ isEditing, onStopEditing, onKeyFromKeyboard }) {
+function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, onKeyFromKeyboard }) {
     const [texts, setTexts] = useState(getInitialState);
 
     useEffect(() => {
         localStorage.setItem(userName, JSON.stringify(texts));
-    },[texts]);
+    }, [texts]);
 
     function addTextHandler(textData) {
         setTexts((existingTexts) => [textData, ...existingTexts]);
@@ -30,6 +30,7 @@ function TextsDisplayList({ isEditing, onStopEditing, onKeyFromKeyboard }) {
                     <TextEditor
                         onCancel={onStopEditing}
                         onAddText={addTextHandler}
+                        selectedText={selectedText} 
                         onKeyFromKeyboard={onKeyFromKeyboard}
                     />
                 </Modal>
@@ -38,7 +39,14 @@ function TextsDisplayList({ isEditing, onStopEditing, onKeyFromKeyboard }) {
             {texts.length > 0 && (
                 <ul className={classes.texts}>
                     {/* make sure key is unique */}
-                    {texts.map((text) => <TextDisplay key={text.title} title={text.title} body={text.body} />)}
+                    {texts.map((text) => (
+                        <TextDisplay
+                            key={text.title}
+                            title={text.title}
+                            body={text.body}
+                            onClick={() => onEditText(text)}
+                        />
+                    ))}
                 </ul>
             )}
 

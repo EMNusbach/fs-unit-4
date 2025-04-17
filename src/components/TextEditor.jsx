@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
 
-function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
+function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText }) {
     const [bodyParts, setBodyParts] = useState([]);
     const [titleParts, setTitleParts] = useState([]);
     const [focusedField, setFocusedField] = useState('title');
@@ -11,6 +11,18 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
         fontSize: '16px',
         fontFamily: 'Arial'
     });
+
+    // Pre-fill the editor with selectedText (if exists)
+    useEffect(() => {
+        if (selectedText) {
+            const defaultStyle = { ...currentStyle };
+            setTitleParts([{ text: selectedText.title, style: defaultStyle }]);
+            setBodyParts([{ text: selectedText.body, style: defaultStyle }]);
+        } else {
+            setTitleParts([]);
+            setBodyParts([]);
+        }
+    }, [selectedText]);
 
     function handleVirtualKeyPress(key) {
         let updatedStyle = currentStyle;
@@ -82,6 +94,8 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard }) {
             });
         }
     }
+
+    
 
     useEffect(() => {
         if (onKeyFromKeyboard) {
