@@ -1,136 +1,141 @@
 .keyboardWrapper {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 230px;
-    background-color: #1e1e1e;
-    padding: 10px;
-    box-sizing: border-box;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 200px;
-  }
-  
-  .mainKeyboard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .sidePanelLeft,
-  .sidePanelRight,
-  .selectButtons,
-  .toggleButtons {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 10px;
-    
-  }
-  .sidePanelRightButtons {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    margin: 0 10px;
-    }
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 230px;
+  background-color: #1e1e1e;
+  padding: 10px;
+  box-sizing: border-box;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 200px;
+}
 
-  
-  .row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  
-  .key {
-    padding: 12px 16px;
-    background-color: #333;
-    color: white;
-    font-size: 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    min-width: 40px;
-    transition: background-color 0.2s ease;
-  }
-  
-  .key:hover {
-    background-color: #555;
-  }
-  
-  .keySpace {
-    background-color: #444;
-    color: white;
-    font-size: 18px;
-    border: none;
-    min-width: 240px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .emojiWrapper {
-    position: absolute;
-    bottom: 240px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1100;
-    max-width: 600px;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
+.mainKeyboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  
-  .selectButtons select {
-    padding: 8px 12px;
-   
-    border: none;
-    width: 150px;
-    border-radius: 6px;
-    background-color: #444;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .selectButtons select:hover {
-    background-color: #555;
-  }
-  
-  .selectButtons select option {
-    background-color: #222;
-    color: white;
-  }
+.sidePanelLeft,
+.sidePanelRight,
+.selectButtons,
+.toggleButtons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 10px;
 
-  .label{
-    color: #e5d5f7;
-    font-size: 25px;
-    margin-bottom: 5px;
-    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-  }
-  .toggleButton {
-    padding: 8px 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .toggleButton:hover {
-    background-color: #666;
-  }
-  
-  .active {
-    background-color: #8c6cf7;
-  }
-  
-  
-  
+}
+
+.sidePanelRightButtons,
+.sidePanelLeftButtons {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin: 0 10px;
+}
+
+.sidePanelLeftButtons {
+  flex-direction: column;
+}
+
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.key {
+  padding: 12px 16px;
+  background-color: #333;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 40px;
+  transition: background-color 0.2s ease;
+}
+
+.key:hover {
+  background-color: #555;
+}
+
+.keySpace {
+  background-color: #444;
+  color: white;
+  font-size: 18px;
+  border: none;
+  min-width: 240px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.emojiWrapper {
+  position: absolute;
+  bottom: 240px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+
+.selectButtons select,
+.sideButton {
+  padding: 8px 12px;
+  border: none;
+  width: 150px;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.selectButtons select:hover,
+.sideButton {
+  background-color: #555;
+}
+
+.selectButtons select option {
+  background-color: #222;
+  color: white;
+}
+
+.label {
+  color: #e5d5f7;
+  font-size: 25px;
+  margin-bottom: 5px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.toggleButton {
+  padding: 8px 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  cursor: pointer;
+}
+
+.toggleButton:hover {
+  background-color: #666;
+}
+
+.active {
+  background-color: #8c6cf7;
+}

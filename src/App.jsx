@@ -1,4 +1,4 @@
-import { useState,useRef} from 'react';
+import { useState, useRef} from 'react';
 import TextsDisplayList from './components/TextsDisplayList';
 import MainHeader from './components/MainHeader';
 import VirtualKeyboard from './components/VirtualKeyboard';
