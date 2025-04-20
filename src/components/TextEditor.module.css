@@ -1,98 +1,98 @@
 .form {
-  background-color: #6233b9;
-  padding: 1rem;
-  width: 30rem;
-  border-radius: 8px;
-}
-
-.form label {
-  display: block;
-  margin-bottom: 0.25rem;
-  color: #eadbfb;
-  font-weight: bold;
-  font-size: 24px;
-}
-.caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.2em;
-  background-color: black;
-  margin-left: 2px;
-  animation: blink 1s steps(1) infinite;
-  vertical-align: bottom;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-
-.input{
-  background-color: #f4f4f4;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 10px 12px;
-  min-height: 40px;
-  font-size: 1rem;
-  color: #28262c;
-  transition: all 0.2s ease;
-  margin-bottom: 1rem;
-  white-space: pre-wrap;
-}
-.textarea {
-  background-color: #f4f4f4;
-  border: none;
-  border-bottom: 2px solid #ccc;
-  border-radius: 8px 8px 0 0;
-  padding: 10px 12px;
-  min-height: 300px; 
-  font-size: 1rem;
-  width: 100%;
-  color: #28262c;
-  transition: border-color 0.3s ease;
-  margin-bottom: 1rem;
-  white-space: pre-wrap;
-  overflow-y: auto;
-}
-
-
-.focused {
-  border-color: #e0b3ff;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-}
-
-.placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.actions button {
-  cursor: pointer;
-  font: inherit;
-  padding: 0.5rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #34036c;
-  color: #e5d5f7;
-  transition: background-color 0.2s ease;
-}
-
-.actions button:hover {
-  background-color: #23014a;
-}
-
-.actions button[type='button'] {
-  background-color: transparent;
-}
-
-.actions button[type='button']:hover {
-  color: #d1bee6;
-}
+    background-color: #6233b9;
+    padding: 1rem;
+    width: 30rem;
+    border-radius: 8px;
+  }
+  
+  .form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #eadbfb;
+    font-weight: bold;
+    font-size: 24px;
+  }
+  .caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background-color: black;
+    margin-left: 2px;
+    animation: blink 1s steps(1) infinite;
+    vertical-align: bottom;
+  }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  
+  
+  .input{
+    background-color: #f4f4f4;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-height: 40px;
+    font-size: 1rem;
+    color: #28262c;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+  }
+  .textarea {
+    background-color: #f4f4f4;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 12px;
+    min-height: 300px; 
+    font-size: 1rem;
+    width: 100%;
+    color: #28262c;
+    transition: border-color 0.3s ease;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+    overflow-y: auto;
+  }
+  
+  
+  .focused {
+    border-color: #e0b3ff;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  
+  .placeholder {
+    color: #999;
+    font-style: italic;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .actions button {
+    cursor: pointer;
+    font: inherit;
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #34036c;
+    color: #e5d5f7;
+    transition: background-color 0.2s ease;
+  }
+  
+  .actions button:hover {
+    background-color: #23014a;
+  }
+  
+  .actions button[type='button'] {
+    background-color: transparent;
+  }
+  
+  .actions button[type='button']:hover {
+    color: #d1bee6;
+  }
