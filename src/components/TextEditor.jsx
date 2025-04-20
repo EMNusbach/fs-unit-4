@@ -1,43 +1,26 @@
 import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
-/**
- * TextEditor component handles styled text input using a virtual keyboard.
- * It supports formatting styles like color, font size, family, bold, italic.
- * It separates the content into parts (titleParts & bodyParts), each with its own style.
- */
-function TextEditor({ titleParts, setTitleParts, bodyParts, setBodyParts, onCancel, onAddText, onKeyFromKeyboard, selectedText, userName }) {
-    const [focusedField, setFocusedField] = useState('title');
+
+function TextEditor({ onCancel, onAddText, selectedText,userName  }) {
+    const [bodyParts, setBodyParts] = useState([]);
+    const [titleParts, setTitleParts] = useState([]);
+    const [focusedField, setFocusedField] = useState();
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
         fontSize: '16px',
         fontFamily: 'Arial'
     });
-
-
-    // Preload existing selectedText (if any) into editor fields
-    // useEffect(() => {
-    //     if (selectedText) {
-    //         setTitleParts(selectedText.titleParts || []);
-    //         setBodyParts(selectedText.bodyParts || []);
-    //     } else {
-    //         setTitleParts([]);
-    //         setBodyParts([]);
-    //     }
-    // }, [selectedText]);
-
-    // Generate the next available text ID for a given user
-    function getNextIdForUser(userName) {
-        const key = `lastTextId_${userName}`;
-        const lastId = parseInt(localStorage.getItem(key) || '0', 10);
-        const newId = lastId + 1;
-        localStorage.setItem(key, newId.toString());
-        return newId;
-    }
-
-    let currentStyleRef = currentStyle;    
     
-    // Handle input from the virtual keyboard (style commands and character input)
+    function getNextIdForUser(userName) {
+      const key = `lastTextId_${userName}`;
+      const lastId = parseInt(localStorage.getItem(key) || '0', 10);
+      const newId = lastId + 1;
+      localStorage.setItem(key, newId.toString());
+      return newId;
+    }
+    
+    let currentStyleRef = currentStyle;
     function handleVirtualKeyPress(key) {
       // This ref object keeps the most recent style for accurate text formatting
       let newStyle = { ...currentStyleRef };
@@ -156,7 +139,6 @@ function TextEditor({ titleParts, setTitleParts, bodyParts, setBodyParts, onCanc
     }, []);
     
 
-    // Save handler for form submission
     function saveHandler(event) {
       event.preventDefault();
     
@@ -171,7 +153,7 @@ function TextEditor({ titleParts, setTitleParts, bodyParts, setBodyParts, onCanc
       onAddText(textData);
       onCancel();
     }
-
+    
 
     return (
         <form className={classes.form} onSubmit={saveHandler}>
