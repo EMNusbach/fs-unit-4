@@ -23,7 +23,7 @@ const symbolKeys = [
   ['!', '?', '(', ')', '[', ']', '{', '}', '⌫']
 ];
 
-function VirtualKeyboard({ onKeyPress}) {
+function VirtualKeyboard() {
   const [language, setLanguage] = useState('en');
   const [isUppercase, setIsUppercase] = useState(true);
   const [layoutMode, setLayoutMode] = useState('letters'); // letters | symbols
@@ -39,24 +39,38 @@ function VirtualKeyboard({ onKeyPress}) {
   const currentKeys = getCurrentLayout();
 
   function handleKeyPress(key) {
+    let char = key;
+  
     if (key === '⇧') {
-      setIsUppercase((prev) => !prev);
+      setIsUppercase(prev => !prev);
+      return;
     } else if (key === '⌫') {
-      onKeyPress?.('Delete');
+      char = 'Delete';
     } else if (key === '&123') {
       setLayoutMode('symbols');
+      return;
     } else if (key === 'ABC') {
       setLayoutMode('letters');
+      return;
     } else if (key === '🌐') {
-      setLanguage((prev) => (prev === 'en' ? 'he' : 'en'));
+      setLanguage(prev => (prev === 'en' ? 'he' : 'en'));
+      return;
+    } else if (layoutMode === 'letters' && language === 'en' && key.length === 1) {
+      char = isUppercase ? key.toUpperCase() : key.toLowerCase();
     }
-    else {
-      const char = layoutMode === 'letters' && language === 'en' && key.length === 1
-        ? (isUppercase ? key.toUpperCase() : key.toLowerCase())
-        : key;
-      onKeyPress?.(char);
+  
+    window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: char }));
+  }
+
+  function applyTextStyle(type, value) {
+    if (value !== undefined && value !== '') {
+      window.dispatchEvent(
+        new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` })
+      );
     }
   }
+  
+  
 
   return (
     <div className={classes.keyboardWrapper}>
@@ -98,7 +112,7 @@ function VirtualKeyboard({ onKeyPress}) {
             <button className={classes.key} onClick={() => handleKeyPress('ABC')}>ABC</button>
           )}
 
-          <button className={classes.keySpace} onClick={() => onKeyPress?.(' ')}>Space</button>
+          <button className={classes.keySpace} onClick={() => window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: ' ' }))}>Space</button>
           <button className={classes.key} onClick={() => handleKeyPress('\n')}>⏎</button>
         </div>
       </div>
@@ -107,7 +121,7 @@ function VirtualKeyboard({ onKeyPress}) {
         <label className={classes.label}>Text Style</label>
         <div className={classes.sidePanelRightButtons}>
           <div className={classes.selectButtons}>
-            <select onChange={(e) => onKeyPress?.(`{color:${e.target.value}}`)}>
+            <select onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>
               <option value="red">🟥 Red</option>
               <option value="green">🟩 Green</option>
@@ -116,7 +130,7 @@ function VirtualKeyboard({ onKeyPress}) {
               <option value="black">⬛ Black</option>
             </select>
 
-            <select onChange={(e) => onKeyPress?.(`{font:${e.target.value}}`)}>
+            <select onChange={(e) => applyTextStyle('font', e.target.value)}>
               <option value="">Font</option>
               <option value="Arial">Arial</option>
               <option value="Courier New">Courier</option>
@@ -124,24 +138,22 @@ function VirtualKeyboard({ onKeyPress}) {
               <option value="Times New Roman">Times</option>
             </select>
 
-            <select onChange={(e) => onKeyPress?.(`{size:${e.target.value}}`)}>
-              <option value="">Size</option>
+           <select onChange={(e) => applyTextStyle('size', e.target.value)}>
+             <option value="">Size</option>
               <option value="small">Small</option>
               <option value="medium">Medium</option>
               <option value="large">Large</option>
-              <option value="x-large">X-Large</option>
             </select>
           </div>
           <div className={classes.toggleButtons}>
-            <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`}
-              onClick={() => { const newBold = !isBold; setIsBold(newBold); onKeyPress?.(`{bold:${newBold}}`); }}>
-              <b>B</b>
-            </button>
-
-            <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`}
-              onClick={() => { const newItalic = !isItalic; setIsItalic(newItalic); onKeyPress?.(`{italic:${newItalic}}`); }} >
-              <i>I</i>
-            </button>
+          <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
+            const newBold = !isBold; setIsBold(newBold);applyTextStyle('bold', newBold);}}>
+           <b>B</b>
+          </button>
+          <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`} onClick={() => {
+            const newItalic = !isItalic; setIsItalic(newItalic);  applyTextStyle('italic', newItalic);}}>
+            <i>I</i>    
+          </button>
           </div>
         </div>
       </div>
@@ -150,7 +162,9 @@ function VirtualKeyboard({ onKeyPress}) {
         <div className={classes.emojiWrapper}>
           <EmojiPicker
             onEmojiClick={(emojiData) => {
-              onKeyPress?.(emojiData.emoji);
+              window.dispatchEvent(
+                new CustomEvent('virtual-keypress', { detail: emojiData.emoji })
+              );
               setShowEmojiPicker(false);
             }}
             height={300}
