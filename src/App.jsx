@@ -7,12 +7,25 @@ function App() {
   const [modalIsVisible, setModalIsVisible] = useState(false);
   const [selectedText, setSelectedText] = useState(null);
 
-
-  // Show modal handler function
-  function showModalHandler(textToEdit = null) {
-    setSelectedText(textToEdit);
-    setModalIsVisible(true);
+  let userName = "Bob"; // Temp
+  function getNextIdForUser(userName) {
+    const key = `lastTextId_${userName}`;
+    const lastId = parseInt(localStorage.getItem(key) || '0', 10);
+    const newId = lastId + 1;
+    localStorage.setItem(key, newId.toString());
+    return newId;
   }
+  // Show modal handler function
+  function showModalHandler() {
+    const newId = getNextIdForUser(userName);  
+    const newNote = {
+      id: newId,
+      bodyParts: [],
+      body: ''
+    };
+      setSelectedText(newNote);
+  }
+  
 
   // Hide modal handler function
   function hideModalHandler() {
@@ -27,10 +40,7 @@ function App() {
         <div className="content-area">
           <main>
             <TextsDisplayList
-              isEditing={modalIsVisible}
-              onStopEditing={hideModalHandler}
-              onEditText={showModalHandler}
-              selectedText={selectedText} 
+            selectedText={selectedText} 
             />
           </main>
         </div>
