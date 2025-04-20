@@ -13,7 +13,7 @@ const getInitialState = () => {
     return texts ? JSON.parse(texts) : [];
 }
 
-function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, onKeyFromKeyboard }) {
+function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText }) {
     const [texts, setTexts] = useState(getInitialState);
 
     // Effect hook to update localStorage whenever 'texts' state changes
@@ -46,7 +46,6 @@ function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, 
                         onCancel={onStopEditing} // Close editor handler
                         onAddText={addTextHandler} // Function to add or update text
                         selectedText={selectedText} // Pass the selected text to edit
-                        onKeyFromKeyboard={onKeyFromKeyboard} // Keyboard input handler
                         userName={userName} // Pass username to the editor
                     />
                 </Modal>
@@ -59,7 +58,7 @@ function TextsDisplayList({ isEditing, onStopEditing, onEditText, selectedText, 
                     {texts.map((text) => (
                      <TextDisplay
                         key={text.id}
-                        titleParts={text.titleParts}
+                       // titleParts={text.titleParts}
                         bodyParts={text.bodyParts}
                         onClick={() => onEditText(text)}
                       />

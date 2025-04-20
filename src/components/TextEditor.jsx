@@ -2,26 +2,15 @@ import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
 
-function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText,userName  }) {
+function TextEditor({ onCancel, onAddText, selectedText,userName  }) {
     const [bodyParts, setBodyParts] = useState([]);
     const [titleParts, setTitleParts] = useState([]);
-    const [focusedField, setFocusedField] = useState('title');
+    const [focusedField, setFocusedField] = useState();
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
         fontSize: '16px',
         fontFamily: 'Arial'
     });
-
-    // Pre-fill the editor with selectedText (if exists)
-    useEffect(() => {
-      if (selectedText) {
-        setTitleParts(selectedText.titleParts || []);
-        setBodyParts(selectedText.bodyParts || []);
-      } else {
-        setTitleParts([]);
-        setBodyParts([]);
-      }
-    }, [selectedText]);
     
     function getNextIdForUser(userName) {
       const key = `lastTextId_${userName}`;
@@ -31,109 +20,133 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText,userN
       return newId;
     }
     
-
+    let currentStyleRef = currentStyle;
     function handleVirtualKeyPress(key) {
-        let updatedStyle = currentStyle;
-
-        if (key.startsWith('{color:')) {
-            const value = key.slice(7, -1);
-            updatedStyle = { ...currentStyle, color: value };
-            setCurrentStyle(updatedStyle);
-            return;
-        }
-        if (key.startsWith('{size:')) {
-            const value = key.slice(6, -1);
-            const fontSizeMap = {
-                small: '14px',
-                medium: '18px',
-                large: '22px',
-                xlarge: '26px'
-            };
-            updatedStyle = { ...currentStyle, fontSize: fontSizeMap[value] || currentStyle.fontSize };
-            setCurrentStyle(updatedStyle);
-            return;
-        }
-        if (key.startsWith('{font:')) {
-            const value = key.slice(6, -1);
-            updatedStyle = { ...currentStyle, fontFamily: value };
-            setCurrentStyle(updatedStyle);
-            return;
-        }
-        if (key.startsWith('{bold:')) {
-          const value = key.slice(6, -1) === 'true';
-          updatedStyle = { ...currentStyle, fontWeight: value ? 'bold' : 'normal' };
-          setCurrentStyle(updatedStyle);
-          return;
-        }
-        if (key.startsWith('{italic:')) {
-          const value = key.slice(8, -1) === 'true';
-          updatedStyle = { ...currentStyle, fontStyle: value ? 'italic' : 'normal' };
-          setCurrentStyle(updatedStyle);
-          return;
-        }
-        
-
-        // Handle deletion
-        if (key === 'Delete' || key === '←') {
-            if (focusedField === 'title') {
-                setTitleParts((prev) => {
-                    const last = prev[prev.length - 1];
-                    if (!last) return [];
-                    if (last.text.length === 1) return prev.slice(0, -1);
-                    return [...prev.slice(0, -1), { ...last, text: last.text.slice(0, -1) }];
-                });
-            } else {
-                setBodyParts((prev) => {
-                    const last = prev[prev.length - 1];
-                    if (!last) return [];
-                    if (last.text.length === 1) return prev.slice(0, -1);
-                    return [...prev.slice(0, -1), { ...last, text: last.text.slice(0, -1) }];
-                });
-            }
-            return;
-        }
-
-        const newPart = { text: key, style: { ...updatedStyle } };
-
-        if (focusedField === 'title') {
-            setTitleParts((prev) => {
-                const last = prev[prev.length - 1];
-                if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
-                    return [...prev.slice(0, -1), { ...last, text: last.text + key }];
-                } else {
-                    return [...prev, newPart];
-                }
-            });
-        } else {
-            setBodyParts((prev) => {
-                const last = prev[prev.length - 1];
-                if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
-                    return [...prev.slice(0, -1), { ...last, text: last.text + key }];
-                } else {
-                    return [...prev, newPart];
-                }
-            });
-        }
-    }
-
+      // This ref object keeps the most recent style for accurate text formatting
+      let newStyle = { ...currentStyleRef };
     
-
-    useEffect(() => {
-        if (onKeyFromKeyboard) {
-            onKeyFromKeyboard((key) => {
-                handleVirtualKeyPress(key);
-            });
+      // Handle color change
+      if (key.startsWith('{color:')) {
+        const value = key.slice(7, -1);
+        newStyle.color = value;
+        setCurrentStyle(newStyle);
+        currentStyleRef = newStyle;
+        return;
+      }
+    
+      // Handle font size change
+      if (key.startsWith('{size:')) {
+        const value = key.slice(6, -1);
+        const fontSizeMap = {
+          small: '14px',
+          medium: '18px',
+          large: '22px',
+        };
+        newStyle.fontSize = fontSizeMap[value] || newStyle.fontSize;
+        setCurrentStyle(newStyle);
+        currentStyleRef = newStyle;
+        return;
+      }
+    
+      // Handle font family change
+      if (key.startsWith('{font:')) {
+        const value = key.slice(6, -1);
+        newStyle.fontFamily = value;
+        setCurrentStyle(newStyle);
+        currentStyleRef = newStyle;
+        return;
+      }
+    
+      // Handle bold toggle
+      if (key.startsWith('{bold:')) {
+        const value = key.slice(6, -1) === 'true';
+        newStyle.fontWeight = value ? 'bold' : 'normal';
+        setCurrentStyle(newStyle);
+        currentStyleRef = newStyle;
+        return;
+      }
+    
+      // Handle italic toggle
+      if (key.startsWith('{italic:')) {
+        const value = key.slice(8, -1) === 'true';
+        newStyle.fontStyle = value ? 'italic' : 'normal';
+        setCurrentStyle(newStyle);
+        currentStyleRef = newStyle;
+        return;
+      }
+    
+      // Handle backspace/delete
+      if (key === 'Delete' || key === '←') {
+        const updateParts = (setParts) => {
+          setParts((prev) => {
+            const last = prev[prev.length - 1];
+            if (!last) return [];
+            if (last.text.length === 1) return prev.slice(0, -1);
+            return [...prev.slice(0, -1), { ...last, text: last.text.slice(0, -1) }];
+          });
+        };
+     /*    (focusedField === 'title' ? updateParts(setTitleParts) : */ updateParts(setBodyParts)//);
+        return;
+      }
+    
+      // Create a new text part using the most recent style from currentStyleRef
+      const newPart = { text: key, style: { ...currentStyleRef } };
+    
+   /*    if (focusedField === 'title') {
+        setTitleParts((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
+            return [...prev.slice(0, -1), { ...last, text: last.text + key }];
+          } else {
+            return [...prev, newPart];
+          }
+        });
+      } else { */
+        setBodyParts((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
+            return [...prev.slice(0, -1), { ...last, text: last.text + key }];
+          } else {
+            return [...prev, newPart];
+          }
+        });
+      }
+    //}
+    
+       // Pre-fill the editor with selectedText (if exists)
+       useEffect(() => {
+        if (selectedText) {
+         // setTitleParts(selectedText.titleParts || []);
+          setBodyParts(selectedText.bodyParts || []);
+        } else {
+         // setTitleParts([]);
+          setBodyParts([]);
         }
-    }, [onKeyFromKeyboard, currentStyle, focusedField]);
+      }, [selectedText]);
+    
+    
+    useEffect(() => {
+      function handleVirtualKeyboardEvent(event) {
+        if (event.detail) {
+          handleVirtualKeyPress(event.detail);
+        }
+      }
+    
+      window.addEventListener('virtual-keypress', handleVirtualKeyboardEvent);
+      return () => {
+        window.removeEventListener('virtual-keypress', handleVirtualKeyboardEvent);
+      };
+    }, []);
+    
 
     function saveHandler(event) {
       event.preventDefault();
     
       const textData = {
         id: selectedText?.id || getNextIdForUser(userName),
-        titleParts,
+       // titleParts,
         bodyParts,
-        title: titleParts.map(part => part.text).join(''),
+       // title: titleParts.map(part => part.text).join(''),
         body: bodyParts.map(part => part.text).join('')
       };
     
@@ -144,7 +157,7 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText,userN
 
     return (
         <form className={classes.form} onSubmit={saveHandler}>
-            <div>
+            {/* <div>
                 <label htmlFor="title">Title</label>
                 <div
                     id="title"
@@ -158,7 +171,7 @@ function TextEditor({ onCancel, onAddText, onKeyFromKeyboard, selectedText,userN
                         ))}
                     {focusedField === 'title' && <span className={classes.caret}></span>}
                 </div>
-            </div>
+            </div> */}
 
             <div>
                 <label htmlFor="body">Text</label>
