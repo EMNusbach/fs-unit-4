@@ -1,33 +1,33 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import classes from './VirtualKeyboard.module.css';
 import EmojiPicker from 'emoji-picker-react';
 
-// English keyboard layout
+// Keyboard layouts
 const englishKeys = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
   ['⇧', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', '/', '⌫'],
 ];
 
-// Hebrew keyboard layout
 const hebrewKeys = [
   ['/', 'ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', '.'],
   ['ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך'],
-  ['⇧', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ', 'ת', '⌫']
+  ['⇧', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ', 'ת', '⌫'],
 ];
 
-// Symbol keyboard layout
 const symbolKeys = [
   ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   ['@', '#', '$', '%', '&', '*', '-', '+', '=', '.', '/'],
-  ['!', '?', '(', ')', '[', ']', '{', '}', '⌫']
+  ['!', '?', '(', ')', '[', ']', '{', '}', '⌫'],
 ];
 
 function VirtualKeyboard() {
+  // State variables
   const [language, setLanguage] = useState('en');
   const [isUppercase, setIsUppercase] = useState(true);
-  const [layoutMode, setLayoutMode] = useState('letters'); // letters | symbols
+  const [layoutMode, setLayoutMode] = useState('letters');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
 
@@ -35,6 +35,7 @@ function VirtualKeyboard() {
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
 
+  // Helpers
   const getCurrentLayout = () => {
     if (layoutMode === 'symbols') return symbolKeys;
     return language === 'en' ? englishKeys : hebrewKeys;
@@ -42,6 +43,7 @@ function VirtualKeyboard() {
 
   const currentKeys = getCurrentLayout();
 
+  // Handlers
   function handleKeyPress(key) {
     let char = key;
 
@@ -64,59 +66,49 @@ function VirtualKeyboard() {
     }
 
     if (focusedInput === 'find') {
-      if (char === 'Delete') {
-        setFindText(prev => prev.slice(0, -1));
-      } else {
-        setFindText(prev => prev + char);
-      }
-
+      setFindText(prev => char === 'Delete' ? prev.slice(0, -1) : prev + char);
     } else if (focusedInput === 'replace') {
-      if (char === 'Delete') {
-        setReplaceText(prev => prev.slice(0, -1));
-      } else {
-        setReplaceText(prev => prev + char);
-      }
-
+      setReplaceText(prev => char === 'Delete' ? prev.slice(0, -1) : prev + char);
     } else {
       window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: char }));
     }
   }
 
+  function handleFindClick() {
+    const inputValue = document.querySelector('.' + classes.sideInput)?.value || '';
+    window.dispatchEvent(new CustomEvent('find-text', { detail: inputValue }));
+  }
+
   function applyTextStyle(type, value) {
-    if (value !== undefined && value !== '') {
-      window.dispatchEvent(
-        new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` })
-      );
+    if (value) {
+      window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` }));
     }
   }
 
-  // Reset focus
+  // Focus reset listener
   useEffect(() => {
-    const handleTextFocus = () => {
-      setFocusedInput(null); 
-    };
-  
+    const handleTextFocus = () => setFocusedInput(null);
     window.addEventListener('text-body-focus', handleTextFocus);
     return () => window.removeEventListener('text-body-focus', handleTextFocus);
   }, []);
 
+  // JSX rendering
   return (
     <div className={classes.keyboardWrapper}>
-
+      {/* Left Panel - Text Actions */}
       <div className={classes.sidePanelLeft}>
         <label className={classes.label}>Text Actions</label>
 
         <div className={classes.sidePanelLeftButtons}>
           <div className={classes.sideActionRow}>
-            <button className={classes.sideButton}>Fined</button>
+            <button className={classes.sideButton} onClick={handleFindClick}>Find</button>
             <input
               type="text"
               placeholder="Find text"
               className={classes.sideInput}
-              onClick={() => {}}
-              onFocus={() => setFocusedInput('find')}
-              onKeyDown={(e) => e.preventDefault()}
               value={findText}
+              onFocus={() => setFocusedInput('find')}
+              onKeyDown={e => e.preventDefault()}
               readOnly
             />
           </div>
@@ -127,9 +119,9 @@ function VirtualKeyboard() {
               type="text"
               placeholder="Replace with"
               className={classes.sideInput}
-              onFocus={() => setFocusedInput('replace')}
-              onKeyDown={(e) => e.preventDefault()}
               value={replaceText}
+              onFocus={() => setFocusedInput('replace')}
+              onKeyDown={e => e.preventDefault()}
               readOnly
             />
           </div>
@@ -138,15 +130,12 @@ function VirtualKeyboard() {
         </div>
       </div>
 
+      {/* Main Keyboard Area */}
       <div className={classes.mainKeyboard}>
-        {currentKeys.map((row, rowIndex) => (
-          <div key={rowIndex} className={classes.row}>
+        {currentKeys.map((row, i) => (
+          <div key={i} className={classes.row}>
             {row.map((key) => (
-              <button
-                key={key}
-                className={classes.key}
-                onClick={() => handleKeyPress(key)}
-              >
+              <button key={key} className={classes.key} onClick={() => handleKeyPress(key)}>
                 {layoutMode === 'letters' && language === 'en' && key.length === 1
                   ? (isUppercase ? key.toUpperCase() : key.toLowerCase())
                   : key}
@@ -155,6 +144,7 @@ function VirtualKeyboard() {
           </div>
         ))}
 
+        {/* Bottom Row */}
         <div className={classes.row}>
           {layoutMode === 'letters' ? (
             <>
@@ -165,12 +155,12 @@ function VirtualKeyboard() {
           ) : (
             <button className={classes.key} onClick={() => handleKeyPress('ABC')}>ABC</button>
           )}
-
           <button className={classes.keySpace} onClick={() => handleKeyPress(' ')}>Space</button>
           <button className={classes.key} onClick={() => handleKeyPress('\n')}>⏎</button>
         </div>
       </div>
 
+      {/* Right Panel - Text Styling */}
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
         <div className={classes.sidePanelRightButtons}>
@@ -199,32 +189,44 @@ function VirtualKeyboard() {
               <option value="large">Large</option>
             </select>
           </div>
+
           <div className={classes.toggleButtons}>
-            <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
-              const newBold = !isBold; setIsBold(newBold); applyTextStyle('bold', newBold);
-            }}>
+            <button
+              className={`${classes.toggleButton} ${isBold ? classes.active : ''}`}
+              onClick={() => {
+                const newBold = !isBold;
+                setIsBold(newBold);
+                applyTextStyle('bold', newBold);
+              }}
+            >
               <b>B</b>
             </button>
-            <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`} onClick={() => {
-              const newItalic = !isItalic; setIsItalic(newItalic); applyTextStyle('italic', newItalic);
-            }}>
+            <button
+              className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`}
+              onClick={() => {
+                const newItalic = !isItalic;
+                setIsItalic(newItalic);
+                applyTextStyle('italic', newItalic);
+              }}
+            >
               <i>I</i>
             </button>
           </div>
         </div>
       </div>
 
+      {/* Emoji Picker */}
       {showEmojiPicker && (
         <div className={classes.emojiWrapper}>
           <EmojiPicker
+            height={300}
+            width={300}
             onEmojiClick={(emojiData) => {
               window.dispatchEvent(
                 new CustomEvent('virtual-keypress', { detail: emojiData.emoji })
               );
               setShowEmojiPicker(false);
             }}
-            height={300}
-            width={300}
           />
         </div>
       )}
