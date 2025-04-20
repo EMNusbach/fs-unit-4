@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
 
-function TextEditor({ onCancel, onAddText, selectedText,userName  }) {
-    const [bodyParts, setBodyParts] = useState([]);
-    const [titleParts, setTitleParts] = useState([]);
+function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText,userName  }) {
+
     const [focusedField, setFocusedField] = useState();
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
