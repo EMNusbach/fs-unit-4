@@ -79,6 +79,14 @@ function VirtualKeyboard() {
     window.dispatchEvent(new CustomEvent('find-text', { detail: inputValue }));
   }
 
+  function handleReplaceClick() {
+    window.dispatchEvent(
+      new CustomEvent('replace-text', {
+        detail: { find: findText, replace: replaceText }
+      })
+    );
+  }
+
   function applyTextStyle(type, value) {
     if (value) {
       window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` }));
@@ -114,7 +122,7 @@ function VirtualKeyboard() {
           </div>
 
           <div className={classes.sideActionRow}>
-            <button className={classes.sideButton}>Replace</button>
+            <button className={classes.sideButton} onClick={handleReplaceClick}>Replace</button>
             <input
               type="text"
               placeholder="Replace with"
