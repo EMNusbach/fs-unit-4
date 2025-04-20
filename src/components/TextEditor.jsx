@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import classes from './TextEditor.module.css';
 
 
-function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText,userName  }) {
+function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText,userName }) {
 
     const [focusedField, setFocusedField] = useState();
     const [currentStyle, setCurrentStyle] = useState({
@@ -137,6 +137,12 @@ function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText
       };
     }, []);
     
+    function cancelHandler() {
+      if (selectedText) {
+        setBodyParts(selectedText.bodyParts || []);
+      }
+      onCancel(); // Exit edit mode
+    }
 
     function saveHandler(event) {
       event.preventDefault();
@@ -189,7 +195,7 @@ function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText
             </div>
 
             <p className={classes.actions}>
-                <button type="button" onClick={onCancel}>Cancel</button>
+                <button type="button" onClick={cancelHandler}>Cancel</button>
                 <button>Save</button>
             </p>
         </form>
