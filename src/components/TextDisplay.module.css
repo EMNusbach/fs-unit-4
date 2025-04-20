@@ -17,13 +17,27 @@
 }
 
 .body {
-    white-space: pre-wrap;
     font-size: 1.25rem;
     margin: 0.25rem 0 0 0;
     color: #444;
     font-style: normal;
     font-weight: normal;
+    word-wrap: break-word;      
+    white-space: normal;      
+    overflow-wrap: break-word; 
+  
 }
+
+.caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background-color: black;
+    margin-left: 2px;
+    animation: blink 1s steps(1) infinite;
+    vertical-align: bottom;
+  }
+  
 
 @keyframes animate-in {
     from {
@@ -36,3 +50,8 @@
         transform: translateY(0);
     }
 }
+.actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
