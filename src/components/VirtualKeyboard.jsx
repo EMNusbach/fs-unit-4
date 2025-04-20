@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import classes from './VirtualKeyboard.module.css';
 import EmojiPicker from 'emoji-picker-react';
 
@@ -90,7 +90,15 @@ function VirtualKeyboard() {
     }
   }
 
-
+  // Reset focus
+  useEffect(() => {
+    const handleTextFocus = () => {
+      setFocusedInput(null); 
+    };
+  
+    window.addEventListener('text-body-focus', handleTextFocus);
+    return () => window.removeEventListener('text-body-focus', handleTextFocus);
+  }, []);
 
   return (
     <div className={classes.keyboardWrapper}>
