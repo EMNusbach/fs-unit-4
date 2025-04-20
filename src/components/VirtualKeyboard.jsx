@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import classes from './VirtualKeyboard.module.css';
 import EmojiPicker from 'emoji-picker-react';
 
@@ -31,6 +31,10 @@ function VirtualKeyboard() {
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
 
+  const [focusedInput, setFocusedInput] = useState(null); // 'find' | 'replace' | null
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
+
   const getCurrentLayout = () => {
     if (layoutMode === 'symbols') return symbolKeys;
     return language === 'en' ? englishKeys : hebrewKeys;
@@ -40,7 +44,7 @@ function VirtualKeyboard() {
 
   function handleKeyPress(key) {
     let char = key;
-  
+
     if (key === '⇧') {
       setIsUppercase(prev => !prev);
       return;
@@ -58,8 +62,24 @@ function VirtualKeyboard() {
     } else if (layoutMode === 'letters' && language === 'en' && key.length === 1) {
       char = isUppercase ? key.toUpperCase() : key.toLowerCase();
     }
-  
-    window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: char }));
+
+    if (focusedInput === 'find') {
+      if (char === 'Delete') {
+        setFindText(prev => prev.slice(0, -1));
+      } else {
+        setFindText(prev => prev + char);
+      }
+
+    } else if (focusedInput === 'replace') {
+      if (char === 'Delete') {
+        setReplaceText(prev => prev.slice(0, -1));
+      } else {
+        setReplaceText(prev => prev + char);
+      }
+
+    } else {
+      window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: char }));
+    }
   }
 
   function applyTextStyle(type, value) {
@@ -69,17 +89,43 @@ function VirtualKeyboard() {
       );
     }
   }
-  
-  
+
+
 
   return (
     <div className={classes.keyboardWrapper}>
 
       <div className={classes.sidePanelLeft}>
         <label className={classes.label}>Text Actions</label>
+
         <div className={classes.sidePanelLeftButtons}>
-          <button className={classes.sideButton}>Fined</button>
-          <button className={classes.sideButton}>Replace</button>
+          <div className={classes.sideActionRow}>
+            <button className={classes.sideButton}>Fined</button>
+            <input
+              type="text"
+              placeholder="Find text"
+              className={classes.sideInput}
+              onClick={() => {}}
+              onFocus={() => setFocusedInput('find')}
+              onKeyDown={(e) => e.preventDefault()}
+              value={findText}
+              readOnly
+            />
+          </div>
+
+          <div className={classes.sideActionRow}>
+            <button className={classes.sideButton}>Replace</button>
+            <input
+              type="text"
+              placeholder="Replace with"
+              className={classes.sideInput}
+              onFocus={() => setFocusedInput('replace')}
+              onKeyDown={(e) => e.preventDefault()}
+              value={replaceText}
+              readOnly
+            />
+          </div>
+
           <button className={classes.sideButton}>Undo</button>
         </div>
       </div>
@@ -112,7 +158,7 @@ function VirtualKeyboard() {
             <button className={classes.key} onClick={() => handleKeyPress('ABC')}>ABC</button>
           )}
 
-          <button className={classes.keySpace} onClick={() => window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: ' ' }))}>Space</button>
+          <button className={classes.keySpace} onClick={() => handleKeyPress(' ')}>Space</button>
           <button className={classes.key} onClick={() => handleKeyPress('\n')}>⏎</button>
         </div>
       </div>
@@ -138,22 +184,24 @@ function VirtualKeyboard() {
               <option value="Times New Roman">Times</option>
             </select>
 
-           <select onChange={(e) => applyTextStyle('size', e.target.value)}>
-             <option value="">Size</option>
+            <select onChange={(e) => applyTextStyle('size', e.target.value)}>
+              <option value="">Size</option>
               <option value="small">Small</option>
               <option value="medium">Medium</option>
               <option value="large">Large</option>
             </select>
           </div>
           <div className={classes.toggleButtons}>
-          <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
-            const newBold = !isBold; setIsBold(newBold);applyTextStyle('bold', newBold);}}>
-           <b>B</b>
-          </button>
-          <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`} onClick={() => {
-            const newItalic = !isItalic; setIsItalic(newItalic);  applyTextStyle('italic', newItalic);}}>
-            <i>I</i>    
-          </button>
+            <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
+              const newBold = !isBold; setIsBold(newBold); applyTextStyle('bold', newBold);
+            }}>
+              <b>B</b>
+            </button>
+            <button className={`${classes.toggleButton} ${isItalic ? classes.active : ''}`} onClick={() => {
+              const newItalic = !isItalic; setIsItalic(newItalic); applyTextStyle('italic', newItalic);
+            }}>
+              <i>I</i>
+            </button>
           </div>
         </div>
       </div>

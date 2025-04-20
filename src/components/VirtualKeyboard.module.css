@@ -10,7 +10,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 200px;
+  gap: 150px;
 }
 
 .mainKeyboard {
@@ -32,6 +32,7 @@
 
 }
 
+
 .sidePanelRightButtons,
 .sidePanelLeftButtons {
   display: flex;
@@ -46,6 +47,26 @@
   flex-direction: column;
 }
 
+.sideActionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;             
+  padding: 4px 6px;
+  border-radius: 6px;
+  width: 100%;          
+  box-sizing: border-box;
+}
+
+.sideInput {
+  padding: 6px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #444;
+  color: white;
+  width: 100%;        
+  max-width: 160px;
+}
 
 .row {
   display: flex;

@@ -136,6 +136,8 @@ function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText
         window.removeEventListener('virtual-keypress', handleVirtualKeyboardEvent);
       };
     }, []);
+
+
     
     function cancelHandler() {
       if (selectedText) {
@@ -203,3 +205,4 @@ function TextEditor({ bodyParts, setBodyParts, onCancel, onAddText, selectedText
 }
 
 export default TextEditor;
+
