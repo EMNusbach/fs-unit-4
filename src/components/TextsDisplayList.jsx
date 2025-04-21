@@ -5,18 +5,18 @@ import classes from './TextsDisplayList.module.css';
 let userName = "Bob"; // Temp
 
 // Function to get the initial state of texts from localStorage
-const getInitialState = () => {
+const getInitialState = (userName) => {
   const texts = localStorage.getItem(userName);
   return texts ? JSON.parse(texts) : [];
 };
 
-function TextsDisplayList({ selectedText }) {
-  const [texts, setTexts] = useState(getInitialState);
+function TextsDisplayList({ selectedText, userName }) {
+  const [texts, setTexts] = useState(getInitialState(userName));
   const [focusedId, setFocusedId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(userName, JSON.stringify(texts));
-  }, [texts]);
+  }, [texts, userName]);
 
   
 
