@@ -39,10 +39,7 @@ function TextsDisplayList({ selectedText }) {
 
   useEffect(() => {
     if (selectedText) {
-      const alreadyExists = texts.some((t) => t.id === selectedText.id);
-      if (!alreadyExists) {
-        setTexts((prev) => [selectedText, ...prev]);
-      }
+      addTextHandler(selectedText); 
       setFocusedId(selectedText.id);
     }
   }, [selectedText]);

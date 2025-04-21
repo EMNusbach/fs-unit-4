@@ -107,7 +107,8 @@ function VirtualKeyboard() {
       <div className={classes.sidePanelLeft}>
         <label className={classes.label}>Text Actions</label>
 
-        <div className={classes.sidePanelLeftButtons}>
+      <div className={classes.sidePanelLeftButtons}>
+        <div className={classes.deleteButtons}>
           <div className={classes.sideActionRow}>
             <button className={classes.sideButton} onClick={handleFindClick}>Find</button>
             <input
@@ -133,8 +134,25 @@ function VirtualKeyboard() {
               readOnly
             />
           </div>
+          </div>
 
-          <button className={classes.sideButton}>Undo</button>
+        <div className={classes.deleteButtons}>
+          <button className={classes.sideButton}   onClick={() => {
+             window.dispatchEvent(new CustomEvent('undo-text'));}}>Undo</button>
+          <button
+              className={classes.sideButton}
+              onClick={() => window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: '{deleteWord}' }))}
+            >
+              Delete Word
+            </button>
+
+            <button
+              className={classes.sideButton}
+              onClick={() => window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: '{deleteAll}' }))}
+            >
+              Delete All
+            </button>
+          </div>
         </div>
       </div>
 

@@ -14,6 +14,7 @@ function TextDisplay({
     // === State ===
     const [isEditing, setIsEditing] = useState(startEditing || false);
     const [localParts, setLocalParts] = useState(bodyParts);
+    const [undoStack, setUndoStack] = useState([]);
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
         fontSize: '16px',
@@ -32,7 +33,18 @@ function TextDisplay({
     }, []);
 
     useEffect(() => {
+        function handleUndoEvent(e) {
+            handleUndo();
+        }
+    
+        window.addEventListener('undo-text', handleUndoEvent);
+        return () => window.removeEventListener('undo-text', handleUndoEvent);
+    }, []);
+    
+
+    useEffect(() => {
         if (isEditing) {
+
             setLocalParts(bodyParts); // Reset on edit start
         }
     }, [isEditing]);
@@ -48,12 +60,13 @@ function TextDisplay({
         return () => window.removeEventListener('virtual-keypress', handleKey);
     }, [isEditing, isFocused]);
 
+     
     useEffect(() => {
         function handleReplace(e) {
             const { find, replace } = e.detail;
             if (!find) return;
-
             setLocalParts(prevParts => {
+                pushToUndoStack(prevParts);
                 return prevParts.flatMap(part => {
                     const pieces = part.text.split(find);
                     if (pieces.length === 1) return [part];
@@ -75,9 +88,6 @@ function TextDisplay({
         window.addEventListener('replace-text', handleReplace);
         return () => window.removeEventListener('replace-text', handleReplace);
     }, []);
-
-
-
 
     // === Helpers ===
     function highlightMatches(parts, searchTerm) {
@@ -104,6 +114,8 @@ function TextDisplay({
     }
 
     function handleVirtualKeyPress(key) {
+        if (!isEditing) return;
+
         let newStyle = { ...currentStyleRef };
 
         if (key.startsWith('{color:')) {
@@ -119,15 +131,38 @@ function TextDisplay({
             newStyle.fontStyle = key.slice(8, -1) === 'true' ? 'italic' : 'normal';
         } else if (key === 'Delete' || key === '←') {
             setLocalParts((prev) => {
+                pushToUndoStack(prev); 
                 const last = prev[prev.length - 1];
                 if (!last) return [];
                 if (last.text.length === 1) return prev.slice(0, -1);
                 return [...prev.slice(0, -1), { ...last, text: last.text.slice(0, -1) }];
             });
             return;
-        } else {
+        } else if (key === '{deleteWord}') {
+            setLocalParts((prev) => {
+                pushToUndoStack(prev); 
+                if (prev.length === 0) return [];
+                const last = prev[prev.length - 1];
+                const newText = last.text.trimEnd().split(' ');
+                if (newText.length <= 1) {
+                    return prev.slice(0, -1);
+                }
+                const updatedLast = { ...last, text: newText.slice(0, -1).join(' ') + ' ' };
+                return [...prev.slice(0, -1), updatedLast];
+            });
+            return;
+        } else if (key === '{deleteAll}') {
+            setLocalParts(prev => {
+                pushToUndoStack(prev);
+                return [];
+            });
+            return;
+        }
+
+         else {
             const newPart = { text: key, style: { ...currentStyleRef } };
             setLocalParts((prev) => {
+                pushToUndoStack(prev); 
                 const last = prev[prev.length - 1];
                 if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
                     return [...prev.slice(0, -1), { ...last, text: last.text + key }];
@@ -140,6 +175,18 @@ function TextDisplay({
         setCurrentStyle(newStyle);
         currentStyleRef = newStyle;
     }
+
+    function handleUndo() {
+        setUndoStack(prevStack => {
+            if (prevStack.length === 0) return prevStack;
+    
+            const newStack = [...prevStack];
+            const lastState = newStack.pop();
+            setLocalParts(lastState);
+            return newStack;
+        });
+    }
+    
 
     // === Event Handlers ===
     function handleEditClick() {
@@ -165,6 +212,13 @@ function TextDisplay({
         if (isEditing) {
             window.dispatchEvent(new CustomEvent('text-body-focus'));
         }
+    }
+    function pushToUndoStack(currentState) {
+        setUndoStack(prev => {
+            const newStack = [...prev, JSON.parse(JSON.stringify(currentState))];
+            console.log('🌀 PUSH TO UNDO STACK:', newStack);
+            return newStack;
+        });
     }
 
     // === JSX ===
