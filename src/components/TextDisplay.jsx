@@ -10,6 +10,7 @@ function TextDisplay({
     onFocus,
     onDelete,
     startEditing,
+    frameColor
 }) {
     // === State ===
     const [isEditing, setIsEditing] = useState(startEditing || false);
@@ -223,7 +224,7 @@ function TextDisplay({
 
     // === JSX ===
     return (
-        <li className={classes.textDisplay}>
+        <li className={classes.textDisplay} style={{ border: `3px solid ${frameColor}` }}>
             <div className={classes.actions}>
                 <button
                     className={classes.deleteBtn}

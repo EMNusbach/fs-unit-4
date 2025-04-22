@@ -46,7 +46,7 @@ function App() {
 
       {isLoggedIn && (
         <>
-          <MainHeader onCreateText={showModalHandler} />
+          <MainHeader onCreateText={showModalHandler} userName={userName} />
 
           <div className="content-area">
             <main>

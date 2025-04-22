@@ -3,6 +3,21 @@ import TextDisplay from './TextDisplay';
 import classes from './TextsDisplayList.module.css';
 
 let userName = "Bob"; // Temp
+const stickyNoteColors = [
+    '#fbb17c', // כתום
+    '#fef38c', // צהוב
+    '#f98dd1', // ורוד
+    '#b788f5', // סגול
+    '#74d1f6', // תכלת
+    '#a9f57b', // ירוק
+  ];
+  
+  
+  function getColorById(id, colors) {
+    const numericId = typeof id === 'number' ? id : parseInt(id, 10);
+    return colors[numericId % colors.length];
+  }
+  
 
 // Function to get the initial state of texts from localStorage
 const getInitialState = (userName) => {
@@ -59,6 +74,7 @@ function TextsDisplayList({ selectedText, userName }) {
               onFocus={() => setFocusedId(text.id)}
               onDelete={deleteTextHandler}
               startEditing={focusedId === text.id}
+              frameColor={getColorById(text.id, stickyNoteColors )}
             />
           ))}
         </ul>
