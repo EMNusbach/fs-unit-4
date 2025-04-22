@@ -189,7 +189,13 @@ function VirtualKeyboard() {
       {/* Right Panel - Text Styling */}
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
+        
         <div className={classes.sidePanelRightButtons}>
+        <button className={classes.sideButton}
+        onClick={() => window.dispatchEvent(new CustomEvent('apply-style-to-all'))}
+        >
+          Apply to All
+        </button>
           <div className={classes.selectButtons}>
             <select onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>

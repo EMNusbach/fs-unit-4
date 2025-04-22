@@ -41,8 +41,23 @@ function TextDisplay({
         window.addEventListener('undo-text', handleUndoEvent);
         return () => window.removeEventListener('undo-text', handleUndoEvent);
     }, []);
-    
 
+    useEffect(() => {
+        function handleApplyStyleToAll() {
+          setLocalParts(prevParts => {
+            pushToUndoStack(prevParts); 
+            return prevParts.map(part => ({
+              ...part,
+              style: { ...currentStyle } 
+            }));
+          });
+        }
+      
+        window.addEventListener('apply-style-to-all', handleApplyStyleToAll);
+        return () => window.removeEventListener('apply-style-to-all', handleApplyStyleToAll);
+      }, [currentStyle]); 
+      
+      
     useEffect(() => {
         if (isEditing) {
 
@@ -216,12 +231,18 @@ function TextDisplay({
     }
     function pushToUndoStack(currentState) {
         setUndoStack(prev => {
-            const newStack = [...prev, JSON.parse(JSON.stringify(currentState))];
-            console.log('🌀 PUSH TO UNDO STACK:', newStack);
-            return newStack;
+          const last = prev[prev.length - 1];
+      
+          // אם אין שינוי בפועל – אל תכניס
+          if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
+            return prev;
+          }
+      
+          const clone = JSON.parse(JSON.stringify(currentState));
+          return [...prev, clone];
         });
-    }
-
+      }
+      
     // === JSX ===
     return (
         <li className={classes.textDisplay} style={{ border: `3px solid ${frameColor}` }}>
