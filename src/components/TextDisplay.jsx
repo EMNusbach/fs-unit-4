@@ -119,7 +119,7 @@ function TextDisplay({
     }
 
     function handleVirtualKeyPress(key) {
-        if (!isEditing || window.__active_text_id !== id) return;
+        if (window.__active_text_id !== id) return;
 
         let newStyle = { ...currentStyleRef };
 
@@ -195,11 +195,11 @@ function TextDisplay({
 
     // === Event Handlers ===
     function handleEditClick() {
+        startEditing=true;
         onFocus?.();
         setLocalParts(bodyParts);
         window.__active_text_id = id;
-        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); // ← כאן
-        setIsEditing(true);
+        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
       }
       
     function handleCancelClick() {
@@ -218,7 +218,13 @@ function TextDisplay({
     function handleBodyClick(e) {
         onFocus?.();
         window.__active_text_id = id;
-        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); // ← כאן
+        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); 
+        console.log('Body clicked for ID:', id); // Debugging line
+        console.log('startEditing:', startEditing); // Debugging line
+        console.log('window.__active_text_id:', window.__active_text_id); // Debugging line
+        console.log('Focused ID:', id); // Debugging line
+        console.log('isEditing:', isEditing); // Debugging line
+        
     }
       
     function pushToUndoStack(currentState) {
