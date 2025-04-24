@@ -1,63 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import TextDisplay from './TextDisplay';
 import classes from './TextsDisplayList.module.css';
 
-let userName = "Bob"; // Temp
 const stickyNoteColors = [
-    '#fbb17c', // כתום
-    '#fef38c', // צהוב
-    '#f98dd1', // ורוד
-    '#b788f5', // סגול
-    '#74d1f6', // תכלת
-    '#a9f57b', // ירוק
-  ];
-  
-  
-  function getColorById(id, colors) {
-    const numericId = typeof id === 'number' ? id : parseInt(id, 10);
-    return colors[numericId % colors.length];
-  }
-  
+  '#fbb17c', '#fef38c', '#f98dd1',
+  '#b788f5', '#74d1f6', '#a9f57b',
+];
 
-// Function to get the initial state of texts from localStorage
-const getInitialState = (userName) => {
+function getInitialTexts(userName) {
   const texts = localStorage.getItem(userName);
   return texts ? JSON.parse(texts) : [];
-};
+}
 
-function TextsDisplayList({ selectedText, userName }) {
-  const [texts, setTexts] = useState(getInitialState(userName));
+function getColorById(id, colors) {
+  const numericId = typeof id === 'number' ? id : parseInt(id, 10);
+  return colors[numericId % colors.length];
+}
+
+function TextsDisplayList({ userName, newNote }) {
+  const [texts, setTexts] = useState(() => getInitialTexts(userName));
   const [focusedId, setFocusedId] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem(userName, JSON.stringify(texts));
-  }, [texts, userName]);
+  // Manual event listener registration 
+  if (!window.__texts_display_focus_registered) {
+    window.addEventListener('keyboard-reset-focus', () => {
+      setFocusedId(null);
+    });
+    window.__texts_display_focus_registered = true;
+  }
 
-  
+  if (newNote && !texts.find((t) => t.id === newNote.id)) {
+    const updated = [newNote, ...texts];
+    setTexts(updated);
+    localStorage.setItem(userName, JSON.stringify(updated));
+    setFocusedId(newNote.id);
+ setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('set-focused-note', { detail: newNote.id }));
+  }, 0);  }
 
-  function addTextHandler(textData) {
-    setTexts((existingTexts) => {
-      const index = existingTexts.findIndex((text) => text.id === textData.id);
-      if (index !== -1) {
-        const updatedTexts = [...existingTexts];
-        updatedTexts[index] = textData;
-        return updatedTexts;
-      } else {
-        return [textData, ...existingTexts];
-      }
+  function addOrUpdateText(noteData) {
+    setTexts((prev) => {
+      const index = prev.findIndex((t) => t.id === noteData.id);
+      const updated = index !== -1
+        ? [...prev.slice(0, index), noteData, ...prev.slice(index + 1)]
+        : [noteData, ...prev];
+      localStorage.setItem(userName, JSON.stringify(updated));
+      return updated;
     });
   }
 
-  function deleteTextHandler(idToDelete) {
-    setTexts((prev) => prev.filter((text) => text.id !== idToDelete));
+  function deleteText(idToDelete) {
+    setTexts((prev) => {
+      const updated = prev.filter((t) => t.id !== idToDelete);
+      localStorage.setItem(userName, JSON.stringify(updated));
+      return updated;
+    });
   }
-
-  useEffect(() => {
-    if (selectedText) {
-      addTextHandler(selectedText); 
-      setFocusedId(selectedText.id);
-    }
-  }, [selectedText]);
 
   return (
     <>
@@ -69,19 +67,19 @@ function TextsDisplayList({ selectedText, userName }) {
               id={text.id}
               bodyParts={text.bodyParts}
               onCancel={() => {}}
-              onSave={(updated) => addTextHandler({ id: text.id, ...updated })}
+              onSave={(updated) => addOrUpdateText({ id: text.id, ...updated })}
               isFocused={focusedId === text.id}
               onFocus={() => setFocusedId(text.id)}
-              onDelete={deleteTextHandler}
+              onDelete={deleteText}
               startEditing={focusedId === text.id}
-              frameColor={getColorById(text.id, stickyNoteColors )}
+              frameColor={getColorById(text.id, stickyNoteColors)}
             />
           ))}
         </ul>
       ) : (
         <div style={{ textAlign: 'center', color: 'white' }}>
-          <h2>There are no texts yet.</h2>
-          <p>Start adding some!</p>
+          <h2>No notes yet</h2>
+          <p>Click \"New Text\" to start writing.</p>
         </div>
       )}
     </>

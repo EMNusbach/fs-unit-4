@@ -4,11 +4,13 @@ import TextsDisplayList from './components/TextsDisplayList';
 import MainHeader from './components/MainHeader';
 import VirtualKeyboard from './components/VirtualKeyboard';
 
+
 function App() {
-  const [modalIsVisible, setModalIsVisible] = useState(false);
+  //const [modalIsVisible, setModalIsVisible] = useState(false);
   const [selectedText, setSelectedText] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false); //  Add login state
   const [userName, setUserName] = useState("");
+  const [newNote, setNewNote] = useState(null);
 
   function getNextIdForUser(userName) {
     const key = `lastTextId_${userName}`;
@@ -17,23 +19,20 @@ function App() {
     localStorage.setItem(key, newId.toString());
     return newId;
   }
+  
   // Show modal handler function
-  function showModalHandler() {
+  function handleCreateNoteRequest() {
     const newId = getNextIdForUser(userName);
     const newNote = {
       id: newId,
       bodyParts: [],
       body: ''
     };
-    setSelectedText(newNote);
+    setNewNote(newNote);
+   /*  addTextHandler(newNote);
+    setFocusedId(newId); */
   }
-
-
-  // Hide modal handler function
-  function hideModalHandler() {
-    setModalIsVisible(false);
-  }
-
+  
   function handleLogin(username) {
     setIsLoggedIn(true);
     setUserName(username);
@@ -46,11 +45,11 @@ function App() {
 
       {isLoggedIn && (
         <>
-          <MainHeader onCreateText={showModalHandler} userName={userName} />
+          <MainHeader onCreateText={handleCreateNoteRequest} userName={userName} />
 
           <div className="content-area">
             <main>
-              <TextsDisplayList selectedText={selectedText} userName={userName}/>
+              <TextsDisplayList newNote={newNote} userName={userName}/>
             </main>
           </div>
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import classes from './TextDisplay.module.css';
 
 function TextDisplay({
@@ -24,87 +24,76 @@ function TextDisplay({
     const [searchTerm, setSearchTerm] = useState('');
     let currentStyleRef = currentStyle;
 
-    // === Effects ===
-    useEffect(() => {
-        function handleFindEvent(e) {
-            setSearchTerm(e.detail); // Highlight search word
-        }
-        window.addEventListener('find-text', handleFindEvent);
-        return () => window.removeEventListener('find-text', handleFindEvent);
-    }, []);
+    if (!window[`__registered_find_${id}`]) {
+        window.addEventListener('find-text', (e) => {
+          setSearchTerm(e.detail);
+        });
+        window[`__registered_find_${id}`] = true;
+      }
+      
 
-    useEffect(() => {
-        function handleUndoEvent(e) {
-            handleUndo();
-        }
-    
-        window.addEventListener('undo-text', handleUndoEvent);
-        return () => window.removeEventListener('undo-text', handleUndoEvent);
-    }, []);
+      if (!window[`__registered_undo_${id}`]) {
+        window.addEventListener('undo-text', () => {
+          handleUndo();
+        });
+        window[`__registered_undo_${id}`] = true;
+      }
+      
 
-    useEffect(() => {
-        function handleApplyStyleToAll() {
+      if (!window[`__registered_apply_all_${id}`]) {
+        window.addEventListener('apply-style-to-all', () => {
           setLocalParts(prevParts => {
-            pushToUndoStack(prevParts); 
+            pushToUndoStack(prevParts);
             return prevParts.map(part => ({
               ...part,
-              style: { ...currentStyle } 
+              style: { ...currentStyle }
             }));
           });
-        }
+        });
+        window[`__registered_apply_all_${id}`] = true;
+      }
       
-        window.addEventListener('apply-style-to-all', handleApplyStyleToAll);
-        return () => window.removeEventListener('apply-style-to-all', handleApplyStyleToAll);
-      }, [currentStyle]); 
+    if (!window[`__registered_keypress_${id}`]) {
+        window.addEventListener('virtual-keypress', (e) => {
+          handleVirtualKeyPress(e.detail); 
+        });
+        window[`__registered_keypress_${id}`] = true;
+      }
       
+    if (!window[`__registered_replace_${id}`]) {
+        window.addEventListener('replace-text', (e) => {
+          const { find, replace } = e.detail;
+          if (!find) return;
       
-    useEffect(() => {
-        if (isEditing) {
-
-            setLocalParts(bodyParts); // Reset on edit start
-        }
-    }, [isEditing]);
-
-    useEffect(() => {
-        if (!isEditing || !isFocused) return;
-
-        function handleKey(event) {
-            handleVirtualKeyPress(event.detail);
-        }
-
-        window.addEventListener('virtual-keypress', handleKey);
-        return () => window.removeEventListener('virtual-keypress', handleKey);
-    }, [isEditing, isFocused]);
-
-     
-    useEffect(() => {
-        function handleReplace(e) {
-            const { find, replace } = e.detail;
-            if (!find) return;
-            setLocalParts(prevParts => {
-                pushToUndoStack(prevParts);
-                return prevParts.flatMap(part => {
-                    const pieces = part.text.split(find);
-                    if (pieces.length === 1) return [part];
-
-                    const result = [];
-                    for (let i = 0; i < pieces.length; i++) {
-                        if (pieces[i]) {
-                            result.push({ ...part, text: pieces[i] });
-                        }
-                        if (i < pieces.length - 1) {
-                            result.push({ ...part, text: replace });
-                        }
-                    }
-                    return result;
-                });
+          setLocalParts(prevParts => {
+            pushToUndoStack(prevParts);
+            return prevParts.flatMap(part => {
+              const pieces = part.text.split(find);
+              if (pieces.length === 1) return [part];
+      
+              const result = [];
+              for (let i = 0; i < pieces.length; i++) {
+                if (pieces[i]) result.push({ ...part, text: pieces[i] });
+                if (i < pieces.length - 1) result.push({ ...part, text: replace });
+              }
+              return result;
             });
-        }
+          });
+        });
+        window[`__registered_replace_${id}`] = true;
+      }
 
-        window.addEventListener('replace-text', handleReplace);
-        return () => window.removeEventListener('replace-text', handleReplace);
-    }, []);
-
+      if (!window[`__registered_note_focus_${id}`]) {
+        window.addEventListener('set-focused-note', (e) => {
+          const newId = e.detail;
+          if (newId === id) {
+            window.__active_text_id = id;
+          }
+        });
+        window[`__registered_note_focus_${id}`] = true;
+      }
+      
+      
     // === Helpers ===
     function highlightMatches(parts, searchTerm) {
         if (!searchTerm) return parts;
@@ -130,7 +119,7 @@ function TextDisplay({
     }
 
     function handleVirtualKeyPress(key) {
-        if (!isEditing) return;
+        if (!isEditing || window.__active_text_id !== id) return;
 
         let newStyle = { ...currentStyleRef };
 
@@ -207,9 +196,12 @@ function TextDisplay({
     // === Event Handlers ===
     function handleEditClick() {
         onFocus?.();
+        setLocalParts(bodyParts);
+        window.__active_text_id = id;
+        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); // ← כאן
         setIsEditing(true);
-    }
-
+      }
+      
     function handleCancelClick() {
         setIsEditing(false);
     }
@@ -225,15 +217,14 @@ function TextDisplay({
 
     function handleBodyClick(e) {
         onFocus?.();
-        if (isEditing) {
-            window.dispatchEvent(new CustomEvent('text-body-focus'));
-        }
+        window.__active_text_id = id;
+        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); // ← כאן
     }
+      
     function pushToUndoStack(currentState) {
         setUndoStack(prev => {
           const last = prev[prev.length - 1];
       
-          // אם אין שינוי בפועל – אל תכניס
           if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
             return prev;
           }
