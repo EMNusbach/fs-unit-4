@@ -13,6 +13,7 @@ function TextDisplay({
     startEditing,
     frameColor
 }) {
+
     // === State ===
     const [isEditing, setIsEditing] = useState(startEditing || false);
     const [localParts, setLocalParts] = useState(bodyParts);
@@ -43,16 +44,23 @@ function TextDisplay({
 
     if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
+    
             setLocalParts(prevParts => {
                 pushToUndoStack(prevParts);
+    
+                // Use the style from the last part if it exists
+                const lastStyle = prevParts.length > 0 ? prevParts[prevParts.length-1].style : {};
+    
                 return prevParts.map(part => ({
                     ...part,
-                    style: { ...currentStyle }
+                    style: { ...lastStyle}
                 }));
             });
         });
+    
         window[`__registered_apply_all_${id}`] = true;
     }
+    
 
     if (!window[`__registered_keypress_${id}`]) {
         window.addEventListener('virtual-keypress', (e) => {
@@ -196,7 +204,7 @@ function TextDisplay({
 
     // === Event Handlers ===
     function handleEditClick() {
-        startEditing = true;
+        // startEditing = true;
         onFocus?.();
         setLocalParts(bodyParts);
         window.__active_text_id = id;

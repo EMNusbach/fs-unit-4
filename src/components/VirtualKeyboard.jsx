@@ -31,6 +31,8 @@ function VirtualKeyboard() {
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
 
+
+
   const getCurrentLayout = () => {
     if (layoutMode === 'symbols') return symbolKeys;
     return language === 'en' ? englishKeys : hebrewKeys;
@@ -78,10 +80,14 @@ function VirtualKeyboard() {
     }));
   }
 
+  function handleAppTolayAllClick() {
+    window.dispatchEvent(new CustomEvent('apply-style-to-all'));
+  }
+
   function applyTextStyle(type, value) {
     if (value !== '') {
       window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` }));
-    }    
+    }
   }
 
   if (!window.__virtual_keyboard_initialized) {
@@ -156,7 +162,7 @@ function VirtualKeyboard() {
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
         <div className={classes.sidePanelRightButtons}>
-          <button className={classes.sideButton} onClick={() => window.dispatchEvent(new CustomEvent('apply-style-to-all'))}>Apply to All</button>
+          <button className={classes.sideButton} onClick={handleAppTolayAllClick}>Apply to All</button>
           <div className={classes.selectButtons}>
             <select onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>
