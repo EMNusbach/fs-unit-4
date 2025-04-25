@@ -1,8 +1,9 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import classes from './TextDisplay.module.css';
 
 function TextDisplay({
     id,
+    userName,
     bodyParts = [],
     onSave,
     onCancel,
@@ -26,74 +27,74 @@ function TextDisplay({
 
     if (!window[`__registered_find_${id}`]) {
         window.addEventListener('find-text', (e) => {
-          setSearchTerm(e.detail);
+            setSearchTerm(e.detail);
         });
         window[`__registered_find_${id}`] = true;
-      }
-      
+    }
 
-      if (!window[`__registered_undo_${id}`]) {
+
+    if (!window[`__registered_undo_${id}`]) {
         window.addEventListener('undo-text', () => {
-          handleUndo();
+            handleUndo();
         });
         window[`__registered_undo_${id}`] = true;
-      }
-      
+    }
 
-      if (!window[`__registered_apply_all_${id}`]) {
+
+    if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
-          setLocalParts(prevParts => {
-            pushToUndoStack(prevParts);
-            return prevParts.map(part => ({
-              ...part,
-              style: { ...currentStyle }
-            }));
-          });
+            setLocalParts(prevParts => {
+                pushToUndoStack(prevParts);
+                return prevParts.map(part => ({
+                    ...part,
+                    style: { ...currentStyle }
+                }));
+            });
         });
         window[`__registered_apply_all_${id}`] = true;
-      }
-      
+    }
+
     if (!window[`__registered_keypress_${id}`]) {
         window.addEventListener('virtual-keypress', (e) => {
-          handleVirtualKeyPress(e.detail); 
+            handleVirtualKeyPress(e.detail);
         });
         window[`__registered_keypress_${id}`] = true;
-      }
-      
+    }
+
     if (!window[`__registered_replace_${id}`]) {
         window.addEventListener('replace-text', (e) => {
-          const { find, replace } = e.detail;
-          if (!find) return;
-      
-          setLocalParts(prevParts => {
-            pushToUndoStack(prevParts);
-            return prevParts.flatMap(part => {
-              const pieces = part.text.split(find);
-              if (pieces.length === 1) return [part];
-      
-              const result = [];
-              for (let i = 0; i < pieces.length; i++) {
-                if (pieces[i]) result.push({ ...part, text: pieces[i] });
-                if (i < pieces.length - 1) result.push({ ...part, text: replace });
-              }
-              return result;
+            const { find, replace } = e.detail;
+            if (!find) return;
+
+            setLocalParts(prevParts => {
+                pushToUndoStack(prevParts);
+                return prevParts.flatMap(part => {
+                    const pieces = part.text.split(find);
+                    if (pieces.length === 1) return [part];
+
+                    const result = [];
+                    for (let i = 0; i < pieces.length; i++) {
+                        if (pieces[i]) result.push({ ...part, text: pieces[i] });
+                        if (i < pieces.length - 1) result.push({ ...part, text: replace });
+                    }
+                    return result;
+                });
             });
-          });
         });
         window[`__registered_replace_${id}`] = true;
-      }
+    }
 
-      if (!window[`__registered_note_focus_${id}`]) {
+    if (!window[`__registered_note_focus_${id}`]) {
         window.addEventListener('set-focused-note', (e) => {
-          const newId = e.detail;
-          if (newId === id) {
-            window.__active_text_id = id;
-          }
+            const newId = e.detail;
+            if (newId === id) {
+                window.__active_text_id = id;
+            }
         });
         window[`__registered_note_focus_${id}`] = true;
-      }
-      
-      
+    }
+
+
     // === Helpers ===
     function highlightMatches(parts, searchTerm) {
         if (!searchTerm) return parts;
@@ -136,7 +137,7 @@ function TextDisplay({
             newStyle.fontStyle = key.slice(8, -1) === 'true' ? 'italic' : 'normal';
         } else if (key === 'Delete' || key === '←') {
             setLocalParts((prev) => {
-                pushToUndoStack(prev); 
+                pushToUndoStack(prev);
                 const last = prev[prev.length - 1];
                 if (!last) return [];
                 if (last.text.length === 1) return prev.slice(0, -1);
@@ -145,7 +146,7 @@ function TextDisplay({
             return;
         } else if (key === '{deleteWord}') {
             setLocalParts((prev) => {
-                pushToUndoStack(prev); 
+                pushToUndoStack(prev);
                 if (prev.length === 0) return [];
                 const last = prev[prev.length - 1];
                 const newText = last.text.trimEnd().split(' ');
@@ -164,10 +165,10 @@ function TextDisplay({
             return;
         }
 
-         else {
+        else {
             const newPart = { text: key, style: { ...currentStyleRef } };
             setLocalParts((prev) => {
-                pushToUndoStack(prev); 
+                pushToUndoStack(prev);
                 const last = prev[prev.length - 1];
                 if (last && JSON.stringify(last.style) === JSON.stringify(newPart.style)) {
                     return [...prev.slice(0, -1), { ...last, text: last.text + key }];
@@ -184,25 +185,31 @@ function TextDisplay({
     function handleUndo() {
         setUndoStack(prevStack => {
             if (prevStack.length === 0) return prevStack;
-    
+
             const newStack = [...prevStack];
             const lastState = newStack.pop();
             setLocalParts(lastState);
             return newStack;
         });
     }
-    
+
 
     // === Event Handlers ===
     function handleEditClick() {
-        startEditing=true;
+        startEditing = true;
         onFocus?.();
         setLocalParts(bodyParts);
         window.__active_text_id = id;
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
-      }
-      
+        setIsEditing(true);
+    }
+
+
     function handleCancelClick() {
+        const notes = JSON.parse(localStorage.getItem(userName)) || [];
+        const updatedNotes = notes.filter(note => note.id !== id);
+        localStorage.setItem(userName, JSON.stringify(updatedNotes));
+        onDelete?.(id);
         setIsEditing(false);
     }
 
@@ -218,28 +225,28 @@ function TextDisplay({
     function handleBodyClick(e) {
         onFocus?.();
         window.__active_text_id = id;
-        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id })); 
+        window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
         console.log('Body clicked for ID:', id); // Debugging line
         console.log('startEditing:', startEditing); // Debugging line
         console.log('window.__active_text_id:', window.__active_text_id); // Debugging line
         console.log('Focused ID:', id); // Debugging line
         console.log('isEditing:', isEditing); // Debugging line
-        
+
     }
-      
+
     function pushToUndoStack(currentState) {
         setUndoStack(prev => {
-          const last = prev[prev.length - 1];
-      
-          if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
-            return prev;
-          }
-      
-          const clone = JSON.parse(JSON.stringify(currentState));
-          return [...prev, clone];
+            const last = prev[prev.length - 1];
+
+            if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
+                return prev;
+            }
+
+            const clone = JSON.parse(JSON.stringify(currentState));
+            return [...prev, clone];
         });
-      }
-      
+    }
+
     // === JSX ===
     return (
         <li className={classes.textDisplay} style={{ border: `3px solid ${frameColor}` }}>

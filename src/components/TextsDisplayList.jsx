@@ -26,8 +26,14 @@ function TextsDisplayList({ userName, newNote }) {
     window.addEventListener('keyboard-reset-focus', () => {
       setFocusedId(null);
     });
+  
+    window.addEventListener('set-focused-note', (e) => {
+      setFocusedId(e.detail); // This updates the focused note
+    });
+  
     window.__texts_display_focus_registered = true;
   }
+  
 
   if (newNote && !texts.find((t) => t.id === newNote.id)) {
     const updated = [newNote, ...texts];
@@ -65,6 +71,7 @@ function TextsDisplayList({ userName, newNote }) {
             <TextDisplay
               key={text.id}
               id={text.id}
+              userName={userName}
               bodyParts={text.bodyParts}
               onCancel={() => {}}
               onSave={(updated) => addOrUpdateText({ id: text.id, ...updated })}
@@ -73,6 +80,7 @@ function TextsDisplayList({ userName, newNote }) {
               onDelete={deleteText}
               startEditing={focusedId === text.id}
               frameColor={getColorById(text.id, stickyNoteColors)}
+
             />
           ))}
         </ul>
