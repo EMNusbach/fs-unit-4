@@ -204,7 +204,6 @@ function TextDisplay({
 
     // === Event Handlers ===
     function handleEditClick() {
-        // startEditing = true;
         onFocus?.();
         setLocalParts(bodyParts);
         window.__active_text_id = id;
@@ -214,10 +213,10 @@ function TextDisplay({
 
 
     function handleCancelClick() {
-        const notes = JSON.parse(localStorage.getItem(userName)) || [];
-        const updatedNotes = notes.filter(note => note.id !== id);
-        localStorage.setItem(userName, JSON.stringify(updatedNotes));
-        onDelete?.(id);
+        const allUsers = JSON.parse(localStorage.getItem('users')) || {};
+        const updatedNotes = allUsers[userName].filter(note => note.id !== id);
+        allUsers[userName] = updatedNotes;
+        localStorage.setItem('users', JSON.stringify(allUsers));
         setIsEditing(false);
     }
 
