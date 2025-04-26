@@ -29,10 +29,10 @@ function LoginSignup({ onLogin }) {
                 return;
             }
 
-            // Save password, and empty texts array
+            // Save password, and empty notes array
             users[username] = {
                 password,
-                texts: []
+                notes: []
             };
 
             localStorage.setItem("users", JSON.stringify(users));

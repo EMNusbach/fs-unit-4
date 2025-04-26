@@ -9,7 +9,7 @@ const stickyNoteColors = [
 
 function getInitialTexts(userName) {
     const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-    return allUsers[userName] || [];
+    return allUsers[userName].notes || [];
 }
 
 function getColorById(id, colors) {
@@ -37,7 +37,7 @@ function TextsDisplayList({ userName, newNote }) {
         setTexts(updated);
 
         const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-        allUsers[userName] = updated;
+        allUsers[userName].notes = updated;
         localStorage.setItem('users', JSON.stringify(allUsers));
 
         setFocusedId(newNote.id);
@@ -54,7 +54,7 @@ function TextsDisplayList({ userName, newNote }) {
                 : [noteData, ...prev];
 
             const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-            allUsers[userName] = updated;
+            allUsers[userName].notes = updated;
             localStorage.setItem('users', JSON.stringify(allUsers));
 
             return updated;
@@ -64,10 +64,11 @@ function TextsDisplayList({ userName, newNote }) {
     function deleteText(idToDelete) {
         const updated = texts.filter((t) => t.id !== idToDelete);
         setTexts(updated);
-
         const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-        allUsers[userName] = updated;
+        allUsers[userName].notes = updated;
         localStorage.setItem('users', JSON.stringify(allUsers));
+
+
     }
 
     return (

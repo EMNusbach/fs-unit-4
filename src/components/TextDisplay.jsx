@@ -214,8 +214,8 @@ function TextDisplay({
 
     function handleCancelClick() {
         const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-        const updatedNotes = allUsers[userName].filter(note => note.id !== id);
-        allUsers[userName] = updatedNotes;
+        const updatedNotes = allUsers[userName].notes.filter(note => note.id !== id);
+        allUsers[userName].notes = updatedNotes;
         localStorage.setItem('users', JSON.stringify(allUsers));
         setIsEditing(false);
     }
