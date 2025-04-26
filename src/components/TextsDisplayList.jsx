@@ -23,9 +23,6 @@ function TextsDisplayList({ userName, newNote }) {
 
   // Manual event listener registration 
   if (!window.__texts_display_focus_registered) {
-    window.addEventListener('keyboard-reset-focus', () => {
-      setFocusedId(null);
-    });
   
     window.addEventListener('set-focused-note', (e) => {
       setFocusedId(e.detail); // This updates the focused note
@@ -76,7 +73,12 @@ function TextsDisplayList({ userName, newNote }) {
               onCancel={() => {}}
               onSave={(updated) => addOrUpdateText({ id: text.id, ...updated })}
               isFocused={focusedId === text.id}
-              onFocus={() => setFocusedId(text.id)}
+              onFocus={() => {
+                setFocusedId(text.id);
+                window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
+              } 
+                
+            }
               onDelete={deleteText}
               startEditing={focusedId === text.id}
               frameColor={getColorById(text.id, stickyNoteColors)}
