@@ -31,7 +31,6 @@ function TextsDisplayList({ userName, newNote }) {
         window.__texts_display_focus_registered = true;
     }
 
-
     if (newNote && !texts.find((t) => t.id === newNote.id)) {
         const updated = [newNote, ...texts];
         setTexts(updated);
@@ -86,7 +85,7 @@ function TextsDisplayList({ userName, newNote }) {
                             isFocused={focusedId === text.id}
                             onFocus={() => {
                                 setFocusedId(text.id);
-                                window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
+                                // window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
                             }
 
                             }

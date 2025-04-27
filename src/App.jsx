@@ -28,6 +28,7 @@ function App() {
       bodyParts: [],
       body: ''
     };
+
     setNewNote(newNote);
    /*  addTextHandler(newNote);
     setFocusedId(newId); */

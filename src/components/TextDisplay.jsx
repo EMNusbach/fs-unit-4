@@ -44,23 +44,23 @@ function TextDisplay({
 
     if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
-    
+
             setLocalParts(prevParts => {
                 pushToUndoStack(prevParts);
-    
+
                 // Use the style from the last part if it exists
-                const lastStyle = prevParts.length > 0 ? prevParts[prevParts.length-1].style : {};
-    
+                const lastStyle = prevParts.length > 0 ? prevParts[prevParts.length - 1].style : {};
+
                 return prevParts.map(part => ({
                     ...part,
-                    style: { ...lastStyle}
+                    style: { ...lastStyle }
                 }));
             });
         });
-    
+
         window[`__registered_apply_all_${id}`] = true;
     }
-    
+
 
     if (!window[`__registered_keypress_${id}`]) {
         window.addEventListener('virtual-keypress', (e) => {
@@ -93,6 +93,11 @@ function TextDisplay({
     }
 
     if (!window[`__registered_note_focus_${id}`]) {
+
+        // window.addEventListener('keyboard-reset-focus', () => {
+        //     setFocusedId(null);
+        // });
+
         window.addEventListener('set-focused-note', (e) => {
             const newId = e.detail;
             if (newId === id) {
