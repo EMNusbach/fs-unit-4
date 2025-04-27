@@ -3,6 +3,7 @@ import LoginSignup from './components/LoginSignup';
 import TextsDisplayList from './components/TextsDisplayList';
 import MainHeader from './components/MainHeader';
 import VirtualKeyboard from './components/VirtualKeyboard';
+import './App.css';
 
 
 function App() {
@@ -37,6 +38,17 @@ function App() {
     setIsLoggedIn(true);
     setUserName(username);
   }
+  function handleLogout() {
+    // Remove cookies
+    document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "user_password=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  
+    // Clear local state
+    localStorage.removeItem("current_user");
+    setUserName("");
+    setIsLoggedIn(false);
+  }
+  
 
   return (
 
@@ -45,6 +57,7 @@ function App() {
 
       {isLoggedIn && (
         <>
+          <button onClick={handleLogout} className="logout">Logout</button>
           <MainHeader onCreateText={handleCreateNoteRequest} userName={userName} />
 
           <div className="content-area">
