@@ -14,7 +14,7 @@ function MainHeader({ onCreateText,userName,onLogOut }) {
           <MdPostAdd size = {18}/>
           New Note
         </button>
-        <MdLogout onClick={onLogOut} color="#2a2630" size={20}/>
+        <MdLogout onClick={onLogOut} color="#2a2630" size={22}/>
       </p>
     </header>
   );
