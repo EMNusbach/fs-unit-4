@@ -28,8 +28,9 @@ function TextDisplay({
 
     if (!window[`__registered_find_${id}`]) {
         window.addEventListener('find-text', (e) => {
-            setSearchTerm(e.detail);
-        });
+        if (window.__active_text_id !== id) return; // Ignore if not focused
+        setSearchTerm(e.detail);     
+       });
         window[`__registered_find_${id}`] = true;
     }
 
@@ -71,6 +72,7 @@ function TextDisplay({
 
     if (!window[`__registered_replace_${id}`]) {
         window.addEventListener('replace-text', (e) => {
+            if (window.__active_text_id !== id) return;// Ignore if not focused
             const { find, replace } = e.detail;
             if (!find) return;
 
@@ -106,27 +108,38 @@ function TextDisplay({
     // === Helpers ===
     function highlightMatches(parts, searchTerm) {
         if (!searchTerm) return parts;
-
+      
         const highlighted = [];
-        parts.forEach((part) => {
-            const index = part.text.toLowerCase().indexOf(searchTerm.toLowerCase());
-
+      
+        parts.forEach(part => {
+          const text = part.text;
+          const lowerText = text.toLowerCase();
+          const lowerSearch = searchTerm.toLowerCase();
+      
+          let i = 0;
+          while (i < text.length) {
+            const index = lowerText.indexOf(lowerSearch, i);
             if (index === -1) {
-                highlighted.push(part);
-            } else {
-                const before = part.text.slice(0, index);
-                const match = part.text.slice(index, index + searchTerm.length);
-                const after = part.text.slice(index + searchTerm.length);
-
-                if (before) highlighted.push({ text: before, style: part.style });
-                highlighted.push({ text: match, style: { ...part.style, backgroundColor: 'yellow' } });
-                if (after) highlighted.push({ text: after, style: part.style });
+              highlighted.push({ text: text.slice(i), style: part.style });
+              break;
             }
+      
+            if (index > i) {
+              highlighted.push({ text: text.slice(i, index), style: part.style });
+            }
+      
+            highlighted.push({
+              text: text.slice(index, index + searchTerm.length),
+              style: { ...part.style, backgroundColor: 'yellow' }
+            });
+      
+            i = index + searchTerm.length;
+          }
         });
-
+      
         return highlighted;
-    }
-
+      }
+      
     function handleVirtualKeyPress(key) {
         if (window.__active_text_id !== id) return;
 
