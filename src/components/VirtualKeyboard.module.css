@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 230px;
+  height: 255px;
   background-color: #1e1e1e;
   padding: 10px;
   box-sizing: border-box;
@@ -14,7 +14,7 @@
 
 .mainKeyboard {
   position: absolute;
-  left: 50%;
+  left: 55%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -144,6 +144,7 @@
   color: #e5d5f7;
   font-size: 25px;
   margin-bottom: 5px;
+  margin-top: -20px; 
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 

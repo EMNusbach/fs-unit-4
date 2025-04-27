@@ -1,4 +1,4 @@
-import { MdPostAdd, MdMessage } from 'react-icons/md';
+import { MdPostAdd, MdMessage, MdLogout } from 'react-icons/md';
 
 import classes from './MainHeader.module.css';
 
@@ -11,12 +11,10 @@ function MainHeader({ onCreateText,userName,onLogOut }) {
       </h1>
       <p>
         <button className={classes.button} onClick={onCreateText}>
-          <MdPostAdd />
-          New Text
+          <MdPostAdd size = {18}/>
+          New Note
         </button>
-        <button onClick={onLogOut} className={classes.button} >
-        Logout
-        </button>
+        <MdLogout onClick={onLogOut} color="#2a2630" size={20}/>
       </p>
     </header>
   );

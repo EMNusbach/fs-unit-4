@@ -162,7 +162,7 @@ function VirtualKeyboard() {
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
         <div className={classes.sidePanelRightButtons}>
-          <button className={classes.sideButton} onClick={handleAppTolayAllClick}>Apply to All</button>
+          
           <div className={classes.selectButtons}>
             <select onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>
@@ -185,6 +185,7 @@ function VirtualKeyboard() {
               <option value="medium">Medium</option>
               <option value="large">Large</option>
             </select>
+            <button className={classes.sideButton} onClick={handleAppTolayAllClick}>Apply to All</button>
           </div>
           <div className={classes.toggleButtons}>
             <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
