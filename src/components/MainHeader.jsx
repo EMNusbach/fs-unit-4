@@ -2,7 +2,7 @@ import { MdPostAdd, MdMessage } from 'react-icons/md';
 
 import classes from './MainHeader.module.css';
 
-function MainHeader({ onCreateText,userName }) {
+function MainHeader({ onCreateText,userName,onLogOut }) {
   return (
     <header className={classes.header}>
       <h1 className={classes.logo}>
@@ -11,8 +11,11 @@ function MainHeader({ onCreateText,userName }) {
       </h1>
       <p>
         <button className={classes.button} onClick={onCreateText}>
-          <MdPostAdd size={18} />
-          New Note
+          <MdPostAdd />
+          New Text
+        </button>
+        <button onClick={onLogOut} className={classes.button} >
+        Logout
         </button>
       </p>
     </header>

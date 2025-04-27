@@ -2,11 +2,31 @@ import { MdPerson, MdLock } from 'react-icons/md';
 import { useState } from "react";
 import classes from './LoginSignup.module.css';
 
+let didAutoLogin = false; // Run auto-login once only
+
+
 function LoginSignup({ onLogin }) {
     const [action, setAction] = useState("Login");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
+    if (!didAutoLogin) {
+        didAutoLogin = true;
+        setTimeout(() => {
+          const savedUsername = getCookie('user_name');
+          const savedPassword = getCookie('user_password');
+          const users = JSON.parse(localStorage.getItem("users")) || {};
+      
+          if (savedUsername && savedPassword) {
+            const user = users[savedUsername];
+            if (user && user.password === savedPassword) {
+              onLogin(savedUsername); // auto-login
+            }
+          }
+        }, 0);
+      }
+      
 
     function handleSubmit(e) {
         e.preventDefault(); // prevent page reload
@@ -52,6 +72,10 @@ function LoginSignup({ onLogin }) {
                 return;
             }
 
+            setCookie('user_name', username, 12);
+            setCookie('user_password', password, 12);
+            localStorage.setItem("current_user", JSON.stringify({ username }));
+                        
             onLogin(username); //call parent login handler
         }
     }
@@ -105,4 +129,18 @@ function LoginSignup({ onLogin }) {
 }
 
 
+function setCookie(name, value, hours) {
+    const expires = new Date(Date.now() + hours * 60 * 60 * 1000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+  }
+  
+  function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (let cookie of cookies) {
+      const [key, value] = cookie.split('=');
+      if (key === name) return value;
+    }
+    return null;
+  }
+  
 export default LoginSignup;
