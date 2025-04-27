@@ -3,7 +3,6 @@ import LoginSignup from './components/LoginSignup';
 import TextsDisplayList from './components/TextsDisplayList';
 import MainHeader from './components/MainHeader';
 import VirtualKeyboard from './components/VirtualKeyboard';
-import './App.css';
 
 
 function App() {
@@ -57,8 +56,9 @@ function App() {
 
       {isLoggedIn && (
         <>
-          <button onClick={handleLogout} className="logout">Logout</button>
-          <MainHeader onCreateText={handleCreateNoteRequest} userName={userName} />
+         
+          <MainHeader onCreateText={handleCreateNoteRequest} onLogOut={handleLogout} userName={userName} 
+          />
 
           <div className="content-area">
             <main>
