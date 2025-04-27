@@ -85,7 +85,7 @@ function TextsDisplayList({ userName, newNote }) {
                             isFocused={focusedId === text.id}
                             onFocus={() => {
                                 setFocusedId(text.id);
-                                // window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
+                                window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
                             }
 
                             }
