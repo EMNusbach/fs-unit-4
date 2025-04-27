@@ -45,20 +45,15 @@ function TextDisplay({
 
     if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
-
             setLocalParts(prevParts => {
                 pushToUndoStack(prevParts);
-
-                // Use the style from the last part if it exists
-                const lastStyle = prevParts.length > 0 ? prevParts[prevParts.length - 1].style : {};
-
                 return prevParts.map(part => ({
                     ...part,
-                    style: { ...lastStyle }
+                    style: { ...currentStyleRef }
                 }));
             });
         });
-
+        
         window[`__registered_apply_all_${id}`] = true;
     }
 
