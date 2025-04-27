@@ -20,7 +20,7 @@ function TextDisplay({
     const [undoStack, setUndoStack] = useState([]);
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
-        fontSize: '16px',
+        fontSize: '14px',
         fontFamily: 'Arial',
     });
     const [searchTerm, setSearchTerm] = useState('');
@@ -45,20 +45,15 @@ function TextDisplay({
 
     if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
-
             setLocalParts(prevParts => {
                 pushToUndoStack(prevParts);
-
-                // Use the style from the last part if it exists
-                const lastStyle = prevParts.length > 0 ? prevParts[prevParts.length - 1].style : {};
-
                 return prevParts.map(part => ({
                     ...part,
-                    style: { ...lastStyle }
+                    style: { ...currentStyleRef }
                 }));
             });
         });
-
+        
         window[`__registered_apply_all_${id}`] = true;
     }
 
@@ -227,6 +222,10 @@ function TextDisplay({
         window.__active_text_id = id;
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
         setIsEditing(true);
+        window.dispatchEvent(new CustomEvent('update-style-ui', {
+            detail: currentStyleRef
+          }));
+          
     }
 
 
@@ -251,12 +250,9 @@ function TextDisplay({
         onFocus?.();
         window.__active_text_id = id;
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
-        console.log('Body clicked for ID:', id); // Debugging line
-        console.log('startEditing:', startEditing); // Debugging line
-        console.log('window.__active_text_id:', window.__active_text_id); // Debugging line
-        console.log('Focused ID:', id); // Debugging line
-        console.log('isEditing:', isEditing); // Debugging line
-
+        window.dispatchEvent(new CustomEvent('update-style-ui', {
+            detail: currentStyleRef
+          }));
     }
 
     function pushToUndoStack(currentState) {

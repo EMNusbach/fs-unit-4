@@ -94,6 +94,24 @@ function VirtualKeyboard() {
     window.addEventListener('keyboard-reset-focus', () => setFocusedInput(null));
     window.__virtual_keyboard_initialized = true;
   }
+  if (!window.__virtual_keyboard_style_listener) {
+    window.addEventListener('update-style-ui', (e) => {
+      const style = e.detail;
+      console.log('set style', style);
+      document.querySelector('select[data-style="color"]').value = style.color || '';
+      document.querySelector('select[data-style="font"]').value = style.fontFamily || '';
+      document.querySelector('select[data-style="size"]').value =  Object.entries({
+        '14px': 'small',
+        '18px': 'medium',
+        '20px': 'large'
+      }).find(([px]) => px === style.fontSize)?.[1] || '';
+      
+      setIsBold(style.fontWeight === 'bold');
+      setIsItalic(style.fontStyle === 'italic');
+    });
+    window.__virtual_keyboard_style_listener = true;
+  }
+  
 
   return (
     <div className={classes.keyboardWrapper}>
@@ -164,7 +182,7 @@ function VirtualKeyboard() {
         <div className={classes.sidePanelRightButtons}>
           
           <div className={classes.selectButtons}>
-            <select onChange={(e) => applyTextStyle('color', e.target.value)}>
+          <select data-style="color" onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>
               <option value="red">🟥 Red</option>
               <option value="green">🟩 Green</option>
@@ -172,14 +190,14 @@ function VirtualKeyboard() {
               <option value="orange">🟧 Orange</option>
               <option value="black">⬛ Black</option>
             </select>
-            <select onChange={(e) => applyTextStyle('font', e.target.value)}>
+            <select data-style="font" onChange={(e) => applyTextStyle('font', e.target.value)}>
               <option value="">Font</option>
               <option value="Arial">Arial</option>
               <option value="Courier New">Courier</option>
               <option value="Georgia">Georgia</option>
               <option value="Times New Roman">Times</option>
             </select>
-            <select onChange={(e) => applyTextStyle('size', e.target.value)}>
+            <select data-style="size" onChange={(e) => applyTextStyle('size', e.target.value)}>
               <option value="">Size</option>
               <option value="small">Small</option>
               <option value="medium">Medium</option>
