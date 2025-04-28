@@ -37,6 +37,7 @@ function TextDisplay({
 
     if (!window[`__registered_undo_${id}`]) {
         window.addEventListener('undo-text', () => {
+            if (window.__active_text_id !== id) return;
             handleUndo();
         });
         window[`__registered_undo_${id}`] = true;
