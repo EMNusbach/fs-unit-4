@@ -250,6 +250,9 @@ function TextDisplay({
     function handleBodyClick(e) {
         onFocus?.();
         window.__active_text_id = id;
+        console.log('Focused note ID:', id);
+        
+       
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
         window.dispatchEvent(new CustomEvent('update-style-ui', {
             detail: currentStyleRef
@@ -295,13 +298,17 @@ function TextDisplay({
             </div>
 
             <div className={classes.body} onClick={handleBodyClick}>
-                {(isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
-                    (part, index) => (
-                        <span key={index} style={part.style}>{part.text}</span>
-                    )
-                )}
+                {
+                    (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).length > 0
+                    ? (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
+                        (part, index) => <span key={index} style={part.style}>{part.text}</span>
+                        )
+                    : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span> // זה חובה בשביל לאפשר לחיצה
+                }
+
                 {isFocused && <span className={classes.caret}></span>}
-            </div>
+                </div>
+
         </li>
     );
 }
