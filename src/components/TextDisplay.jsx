@@ -251,8 +251,7 @@ function TextDisplay({
         onFocus?.();
         window.__active_text_id = id;
         console.log('Focused note ID:', id);
-        
-       
+        setSearchTerm('');
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
         window.dispatchEvent(new CustomEvent('update-style-ui', {
             detail: currentStyleRef
