@@ -28,6 +28,14 @@ function App() {
       bodyParts: [],
       body: ''
     };
+
+    window.dispatchEvent(new CustomEvent('update-style-ui', {
+      detail: {
+        color: 'black',
+        fontSize: '14px',
+        fontFamily: 'Arial',
+      }
+    }));
     setNewNote(newNote);
   }
 
