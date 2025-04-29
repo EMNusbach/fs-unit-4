@@ -95,6 +95,7 @@ function TextsDisplayList({ userName, newNote }) {
                             onDelete={deleteText}
                             startEditing={focusedId === text.id}
                             frameColor={getColorById(text.id, stickyNoteColors)}
+                            
                         />
                     ))}
                 </ul>

@@ -55,6 +55,13 @@ function App() {
     localStorage.removeItem("current_user");
     setUserName("");
     setIsLoggedIn(false);
+
+    // Reset window flags
+    Object.keys(window).forEach(key => {
+      if (key.startsWith('__registered_')) {
+        delete window[key];
+      }
+    });
   }
 
 

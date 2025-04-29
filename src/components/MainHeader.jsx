@@ -2,9 +2,8 @@ import { MdPostAdd, MdMessage, MdLogout } from 'react-icons/md';
 
 import classes from './MainHeader.module.css';
 
-
 function MainHeader({ onCreateText, userName, onLogOut }) {
-
+  
   return (
     <header className={classes.header}>
       <h1 className={classes.logo}>

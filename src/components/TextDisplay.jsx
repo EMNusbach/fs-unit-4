@@ -282,7 +282,7 @@ function TextDisplay({
         }));
     }
 
-
+    
 
     // === Render ===
     return (
