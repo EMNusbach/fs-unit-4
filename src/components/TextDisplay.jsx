@@ -315,7 +315,7 @@ function TextDisplay({
                         ? (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
                             (part, index) => <span key={index} style={part.style}>{part.text}</span>
                         )
-                        : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span> // זה חובה בשביל לאפשר לחיצה
+                        : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span>
                 }
 
                 {isFocused && <span className={classes.caret}></span>}
