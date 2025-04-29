@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import classes from './VirtualKeyboard.module.css';
 import EmojiPicker from 'emoji-picker-react';
 
+
+// Layout definitions for different modes
 const englishKeys = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
@@ -21,6 +23,7 @@ const symbolKeys = [
 ];
 
 function VirtualKeyboard() {
+  // States hooks
   const [language, setLanguage] = useState('en');
   const [isUppercase, setIsUppercase] = useState(true);
   const [layoutMode, setLayoutMode] = useState('letters');
@@ -31,8 +34,7 @@ function VirtualKeyboard() {
   const [findText, setFindText] = useState('');
   const [replaceText, setReplaceText] = useState('');
 
-
-
+  // Determines current key layout
   const getCurrentLayout = () => {
     if (layoutMode === 'symbols') return symbolKeys;
     return language === 'en' ? englishKeys : hebrewKeys;
@@ -40,6 +42,7 @@ function VirtualKeyboard() {
 
   const currentKeys = getCurrentLayout();
 
+  // Handles virtual key press behavior
   function handleKeyPress(key) {
     let char = key;
 
@@ -61,64 +64,83 @@ function VirtualKeyboard() {
       char = isUppercase ? key.toUpperCase() : key.toLowerCase();
     }
 
+    // Handle key input for the "Find" text field
     if (focusedInput === 'find') {
       setFindText(prev => char === 'Delete' ? prev.slice(0, -1) : prev + char);
-    } else if (focusedInput === 'replace') {
+    }
+    // Handle key input for the "Replace" text field
+    else if (focusedInput === 'replace') {
       setReplaceText(prev => char === 'Delete' ? prev.slice(0, -1) : prev + char);
-    } else {
+    }
+    // Handle key input for the main text area (note)
+    else {
       window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: char }));
     }
   }
 
+
+  // === Sends tag to TextDisplay.jsx ===
+  // Triggers find event
   function handleFindClick() {
     window.dispatchEvent(new CustomEvent('find-text', { detail: findText }));
   }
 
+  // Triggers replace event
   function handleReplaceClick() {
     window.dispatchEvent(new CustomEvent('replace-text', {
       detail: { find: findText, replace: replaceText }
     }));
   }
 
-  function handleAppTolayAllClick() {
+  // Applies current style to all text blocks
+  function handleApplayAllClick() {
     window.dispatchEvent(new CustomEvent('apply-style-to-all'));
   }
 
+  // Triggers style event
   function applyTextStyle(type, value) {
     if (value !== '') {
       window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: `{${type}:${value}}` }));
     }
   }
 
+  // === One-time global listener ===
+
   if (!window.__virtual_keyboard_initialized) {
     window.addEventListener('keyboard-reset-focus', () => setFocusedInput(null));
     window.__virtual_keyboard_initialized = true;
   }
-  
+
   if (!window.__virtual_keyboard_style_listener) {
     window.addEventListener('update-style-ui', (e) => {
       const style = e.detail;
       console.log('set style', style);
+
+      // Sync style dropdowns
       document.querySelector('select[data-style="color"]').value = style.color || '';
       document.querySelector('select[data-style="font"]').value = style.fontFamily || '';
-      document.querySelector('select[data-style="size"]').value =  Object.entries({
+      document.querySelector('select[data-style="size"]').value = Object.entries({
         '14px': 'small',
         '18px': 'medium',
         '20px': 'large'
       }).find(([px]) => px === style.fontSize)?.[1] || '';
-      
+
       setIsBold(style.fontWeight === 'bold');
       setIsItalic(style.fontStyle === 'italic');
     });
     window.__virtual_keyboard_style_listener = true;
   }
-  
 
+
+  // === Render ===
   return (
     <div className={classes.keyboardWrapper}>
+
+      {/* Left Panel: Text Actions */}
       <div className={classes.sidePanelLeft}>
         <label className={classes.label}>Text Actions</label>
         <div className={classes.sidePanelLeftButtons}>
+
           <div className={classes.deleteButtons}>
             <div className={classes.sideActionRow}>
               <button className={classes.sideButton} onClick={handleFindClick}>Find</button>
@@ -132,6 +154,7 @@ function VirtualKeyboard() {
                 readOnly
               />
             </div>
+
             <div className={classes.sideActionRow}>
               <button className={classes.sideButton} onClick={handleReplaceClick}>Replace</button>
               <input
@@ -145,6 +168,7 @@ function VirtualKeyboard() {
               />
             </div>
           </div>
+
           <div className={classes.deleteButtons}>
             <button className={classes.sideButton} onClick={() => window.dispatchEvent(new CustomEvent('undo-text'))}>Undo</button>
             <button className={classes.sideButton} onClick={() => window.dispatchEvent(new CustomEvent('virtual-keypress', { detail: '{deleteWord}' }))}>Delete Word</button>
@@ -153,16 +177,21 @@ function VirtualKeyboard() {
         </div>
       </div>
 
+      {/* Main Keyboard */}
       <div className={classes.mainKeyboard}>
         {currentKeys.map((row, i) => (
           <div key={i} className={classes.row}>
             {row.map((key) => (
               <button key={key} className={classes.key} onClick={() => handleKeyPress(key)}>
-                {layoutMode === 'letters' && language === 'en' && key.length === 1 ? (isUppercase ? key.toUpperCase() : key.toLowerCase()) : key}
+                {layoutMode === 'letters' && language === 'en' && key.length === 1
+                  ? (isUppercase ? key.toUpperCase() : key.toLowerCase())
+                  : key}
               </button>
             ))}
           </div>
         ))}
+
+        {/* Bottom row: Space, Enter, Emoji, etc. */}
         <div className={classes.row}>
           {layoutMode === 'letters' ? (
             <>
@@ -178,12 +207,13 @@ function VirtualKeyboard() {
         </div>
       </div>
 
+      {/* Right Panel: Text Style Controls */}
       <div className={classes.sidePanelRight}>
         <label className={classes.label}>Text Style</label>
         <div className={classes.sidePanelRightButtons}>
-          
+
           <div className={classes.selectButtons}>
-          <select data-style="color" onChange={(e) => applyTextStyle('color', e.target.value)}>
+            <select data-style="color" onChange={(e) => applyTextStyle('color', e.target.value)}>
               <option value="">Color</option>
               <option value="red">🟥 Red</option>
               <option value="green">🟩 Green</option>
@@ -204,8 +234,9 @@ function VirtualKeyboard() {
               <option value="medium">Medium</option>
               <option value="large">Large</option>
             </select>
-            <button className={classes.sideButton} onClick={handleAppTolayAllClick}>Apply to All</button>
+            <button className={classes.sideButton} onClick={handleApplayAllClick}>Apply to All</button>
           </div>
+
           <div className={classes.toggleButtons}>
             <button className={`${classes.toggleButton} ${isBold ? classes.active : ''}`} onClick={() => {
               const newBold = !isBold;
@@ -225,6 +256,7 @@ function VirtualKeyboard() {
         </div>
       </div>
 
+      {/* Emoji Picker Modal */}
       {showEmojiPicker && (
         <div className={classes.emojiWrapper}>
           <EmojiPicker

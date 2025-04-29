@@ -6,7 +6,6 @@ function TextDisplay({
     userName,
     bodyParts = [],
     onSave,
-    onCancel,
     isFocused,
     onFocus,
     onDelete,
@@ -14,10 +13,10 @@ function TextDisplay({
     frameColor
 }) {
 
-    // === State ===
+    // === State Hooks ===
     const [isEditing, setIsEditing] = useState(startEditing || false);
-    const [localParts, setLocalParts] = useState(bodyParts);
-    const [undoStack, setUndoStack] = useState([]);
+    const [localParts, setLocalParts] = useState(bodyParts);  // Editable parts
+    const [undoStack, setUndoStack] = useState([]);           // Undo history
     const [currentStyle, setCurrentStyle] = useState({
         color: 'black',
         fontSize: '14px',
@@ -26,24 +25,19 @@ function TextDisplay({
     const [searchTerm, setSearchTerm] = useState('');
     let currentStyleRef = currentStyle;
 
-    if (!window[`__registered_find_${id}`]) {
-        window.addEventListener('find-text', (e) => {
-        if (window.__active_text_id !== id) return; // Ignore if not focused
-        setSearchTerm(e.detail);     
-       });
-        window[`__registered_find_${id}`] = true;
-    }
 
+    // === Global Event Registration ===
+    // These ensure listeners are only added once per note ID
 
-    if (!window[`__registered_undo_${id}`]) {
-        window.addEventListener('undo-text', () => {
-            if (window.__active_text_id !== id) return;
-            handleUndo();
+    // Virtual Keypress Event
+    if (!window[`__registered_keypress_${id}`]) {
+        window.addEventListener('virtual-keypress', (e) => {
+            handleVirtualKeyPress(e.detail);
         });
-        window[`__registered_undo_${id}`] = true;
+        window[`__registered_keypress_${id}`] = true;
     }
 
-
+    // Apply Style To All Event
     if (!window[`__registered_apply_all_${id}`]) {
         window.addEventListener('apply-style-to-all', () => {
             setLocalParts(prevParts => {
@@ -54,21 +48,31 @@ function TextDisplay({
                 }));
             });
         });
-        
         window[`__registered_apply_all_${id}`] = true;
     }
 
-
-    if (!window[`__registered_keypress_${id}`]) {
-        window.addEventListener('virtual-keypress', (e) => {
-            handleVirtualKeyPress(e.detail);
+    // Undo Text Event
+    if (!window[`__registered_undo_${id}`]) {
+        window.addEventListener('undo-text', () => {
+            if (window.__active_text_id !== id) return;
+            handleUndo();
         });
-        window[`__registered_keypress_${id}`] = true;
+        window[`__registered_undo_${id}`] = true;
     }
 
+    // Find Text Event
+    if (!window[`__registered_find_${id}`]) {
+        window.addEventListener('find-text', (e) => {
+            if (window.__active_text_id !== id) return; // Ignore if not focused
+            setSearchTerm(e.detail);
+        });
+        window[`__registered_find_${id}`] = true;
+    }
+
+    // Replace Text Event
     if (!window[`__registered_replace_${id}`]) {
         window.addEventListener('replace-text', (e) => {
-            if (window.__active_text_id !== id) return;// Ignore if not focused
+            if (window.__active_text_id !== id) return;  // Ignore if not focused
             const { find, replace } = e.detail;
             if (!find) return;
 
@@ -90,12 +94,8 @@ function TextDisplay({
         window[`__registered_replace_${id}`] = true;
     }
 
+    // Set Note Focus Event
     if (!window[`__registered_note_focus_${id}`]) {
-
-        // window.addEventListener('keyboard-reset-focus', () => {
-        //     setFocusedId(null);
-        // });
-
         window.addEventListener('set-focused-note', (e) => {
             const newId = e.detail;
             if (newId === id) {
@@ -107,45 +107,49 @@ function TextDisplay({
 
 
     // === Helpers ===
+
+    // Highlights matching search term in text
     function highlightMatches(parts, searchTerm) {
         if (!searchTerm) return parts;
-      
+
         const highlighted = [];
-      
+
         parts.forEach(part => {
-          const text = part.text;
-          const lowerText = text.toLowerCase();
-          const lowerSearch = searchTerm.toLowerCase();
-      
-          let i = 0;
-          while (i < text.length) {
-            const index = lowerText.indexOf(lowerSearch, i);
-            if (index === -1) {
-              highlighted.push({ text: text.slice(i), style: part.style });
-              break;
+            const text = part.text;
+            const lowerText = text.toLowerCase();
+            const lowerSearch = searchTerm.toLowerCase();
+
+            let i = 0;
+            while (i < text.length) {
+                const index = lowerText.indexOf(lowerSearch, i);
+                if (index === -1) {
+                    highlighted.push({ text: text.slice(i), style: part.style });
+                    break;
+                }
+
+                if (index > i) {
+                    highlighted.push({ text: text.slice(i, index), style: part.style });
+                }
+
+                highlighted.push({
+                    text: text.slice(index, index + searchTerm.length),
+                    style: { ...part.style, backgroundColor: 'yellow' }
+                });
+
+                i = index + searchTerm.length;
             }
-      
-            if (index > i) {
-              highlighted.push({ text: text.slice(i, index), style: part.style });
-            }
-      
-            highlighted.push({
-              text: text.slice(index, index + searchTerm.length),
-              style: { ...part.style, backgroundColor: 'yellow' }
-            });
-      
-            i = index + searchTerm.length;
-          }
         });
-      
+
         return highlighted;
-      }
-      
+    }
+
+    // Handles virtual keyboard input
     function handleVirtualKeyPress(key) {
         if (window.__active_text_id !== id) return;
 
         let newStyle = { ...currentStyleRef };
 
+        // Handle style keys
         if (key.startsWith('{color:')) {
             newStyle.color = key.slice(7, -1);
         } else if (key.startsWith('{size:')) {
@@ -157,7 +161,10 @@ function TextDisplay({
             newStyle.fontWeight = key.slice(6, -1) === 'true' ? 'bold' : 'normal';
         } else if (key.startsWith('{italic:')) {
             newStyle.fontStyle = key.slice(8, -1) === 'true' ? 'italic' : 'normal';
-        } else if (key === 'Delete' || key === '←') {
+        }
+
+        // Handle delete keys
+        else if (key === 'Delete' || key === '←') {
             setLocalParts((prev) => {
                 pushToUndoStack(prev);
                 const last = prev[prev.length - 1];
@@ -187,6 +194,7 @@ function TextDisplay({
             return;
         }
 
+        // Handle regular character input
         else {
             const newPart = { text: key, style: { ...currentStyleRef } };
             setLocalParts((prev) => {
@@ -204,6 +212,7 @@ function TextDisplay({
         currentStyleRef = newStyle;
     }
 
+    // Restores previous state from undo stack
     function handleUndo() {
         setUndoStack(prevStack => {
             if (prevStack.length === 0) return prevStack;
@@ -215,8 +224,23 @@ function TextDisplay({
         });
     }
 
+    // Adds current state to undo stack if it's different from the last
+    function pushToUndoStack(currentState) {
+        setUndoStack(prev => {
+            const last = prev[prev.length - 1];
+
+            if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
+                return prev;
+            }
+
+            const clone = JSON.parse(JSON.stringify(currentState));
+            return [...prev, clone];
+        });
+    }
+
 
     // === Event Handlers ===
+
     function handleEditClick() {
         onFocus?.();
         setLocalParts(bodyParts);
@@ -225,8 +249,8 @@ function TextDisplay({
         setIsEditing(true);
         window.dispatchEvent(new CustomEvent('update-style-ui', {
             detail: currentStyleRef
-          }));
-          
+        }));
+
     }
 
 
@@ -255,23 +279,12 @@ function TextDisplay({
         window.dispatchEvent(new CustomEvent('set-focused-note', { detail: id }));
         window.dispatchEvent(new CustomEvent('update-style-ui', {
             detail: currentStyleRef
-          }));
+        }));
     }
 
-    function pushToUndoStack(currentState) {
-        setUndoStack(prev => {
-            const last = prev[prev.length - 1];
 
-            if (last && JSON.stringify(last) === JSON.stringify(currentState)) {
-                return prev;
-            }
 
-            const clone = JSON.parse(JSON.stringify(currentState));
-            return [...prev, clone];
-        });
-    }
-
-    // === JSX ===
+    // === Render ===
     return (
         <li className={classes.textDisplay} style={{ border: `3px solid ${frameColor}` }}>
             <div className={classes.actions}>
@@ -299,15 +312,14 @@ function TextDisplay({
             <div className={classes.body} onClick={handleBodyClick}>
                 {
                     (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).length > 0
-                    ? (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
-                        (part, index) => <span key={index} style={part.style}>{part.text}</span>
+                        ? (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
+                            (part, index) => <span key={index} style={part.style}>{part.text}</span>
                         )
-                    : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span> // זה חובה בשביל לאפשר לחיצה
+                        : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span> // זה חובה בשביל לאפשר לחיצה
                 }
 
                 {isFocused && <span className={classes.caret}></span>}
-                </div>
-
+            </div>
         </li>
     );
 }

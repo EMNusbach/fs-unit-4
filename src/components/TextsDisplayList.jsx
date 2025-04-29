@@ -2,35 +2,39 @@ import { useState } from 'react';
 import TextDisplay from './TextDisplay';
 import classes from './TextsDisplayList.module.css';
 
+// List of predefined sticky note colors
 const stickyNoteColors = [
     '#fbb17c', '#fef38c', '#f98dd1',
     '#b788f5', '#74d1f6', '#a9f57b',
 ];
 
-function getInitialTexts(userName) {
-    const allUsers = JSON.parse(localStorage.getItem('users')) || {};
-    return allUsers[userName].notes || [];
-}
-
+// Deterministically assign a color based on note ID
 function getColorById(id, colors) {
     const numericId = typeof id === 'number' ? id : parseInt(id, 10);
     return colors[numericId % colors.length];
 }
 
+// Retrieve notes for a specific user from localStorage
+function getInitialTexts(userName) {
+    const allUsers = JSON.parse(localStorage.getItem('users')) || {};
+    return allUsers[userName].notes || [];
+}
+
+
 function TextsDisplayList({ userName, newNote }) {
+    // State hooks
     const [texts, setTexts] = useState(() => getInitialTexts(userName));
     const [focusedId, setFocusedId] = useState(null);
 
-    // Manual event listener registration 
+    // Register a global event listener only once to handle setting the focused note
     if (!window.__texts_display_focus_registered) {
-
         window.addEventListener('set-focused-note', (e) => {
             setFocusedId(e.detail); // This updates the focused note
         });
-
         window.__texts_display_focus_registered = true;
     }
 
+    // If a new note is passed in and not already present, add it to the state
     if (newNote && !texts.find((t) => t.id === newNote.id)) {
         const updated = [newNote, ...texts];
         setTexts(updated);
@@ -45,6 +49,7 @@ function TextsDisplayList({ userName, newNote }) {
         }, 0);
     }
 
+    // Update an existing note
     function addOrUpdateText(noteData) {
         setTexts((prev) => {
             const index = prev.findIndex((t) => t.id === noteData.id);
@@ -60,16 +65,17 @@ function TextsDisplayList({ userName, newNote }) {
         });
     }
 
+    // Delete a note by ID
     function deleteText(idToDelete) {
         const updated = texts.filter((t) => t.id !== idToDelete);
         setTexts(updated);
+
         const allUsers = JSON.parse(localStorage.getItem('users')) || {};
         allUsers[userName].notes = updated;
         localStorage.setItem('users', JSON.stringify(allUsers));
-
-
     }
 
+    // Render the list of notes (or nothing if empty)
     return (
         <>
             {texts.length > 0 ? (
@@ -80,19 +86,15 @@ function TextsDisplayList({ userName, newNote }) {
                             id={text.id}
                             userName={userName}
                             bodyParts={text.bodyParts}
-                            onCancel={() => { }}
                             onSave={(updated) => addOrUpdateText({ id: text.id, ...updated })}
                             isFocused={focusedId === text.id}
                             onFocus={() => {
                                 setFocusedId(text.id);
                                 window.dispatchEvent(new CustomEvent('keyboard-reset-focus'));
-                            }
-
-                            }
+                            }}
                             onDelete={deleteText}
                             startEditing={focusedId === text.id}
                             frameColor={getColorById(text.id, stickyNoteColors)}
-
                         />
                     ))}
                 </ul>
