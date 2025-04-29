@@ -94,6 +94,7 @@ function VirtualKeyboard() {
     window.addEventListener('keyboard-reset-focus', () => setFocusedInput(null));
     window.__virtual_keyboard_initialized = true;
   }
+  
   if (!window.__virtual_keyboard_style_listener) {
     window.addEventListener('update-style-ui', (e) => {
       const style = e.detail;

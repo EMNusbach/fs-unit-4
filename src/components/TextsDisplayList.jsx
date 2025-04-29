@@ -96,12 +96,7 @@ function TextsDisplayList({ userName, newNote }) {
                         />
                     ))}
                 </ul>
-            ) : (
-                <div style={{ textAlign: 'center', color: 'white' }}>
-                    <h2>No notes yet</h2>
-                    <p>Click \"New Text\" to start writing.</p>
-                </div>
-            )}
+            ) :null}
         </>
     );
 }
