@@ -312,7 +312,11 @@ function TextDisplay({
                 {
                     (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).length > 0
                         ? (isEditing ? highlightMatches(localParts, searchTerm) : highlightMatches(bodyParts, searchTerm)).map(
-                            (part, index) => <span key={index} style={part.style}>{part.text}</span>
+                            (part, index) =>
+                                part.text.split('\n').flatMap((segment, i, arr) => [
+                                  <span key={`${index}-${i}`} style={part.style}>{segment}</span>,
+                                  ...(i < arr.length - 1 ? [<br key={`br-${index}-${i}`} />] : [])
+                                ])
                         )
                         : <span style={{ display: 'inline-block', minHeight: '1em' }}>&nbsp;</span>
                 }

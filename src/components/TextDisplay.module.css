@@ -5,6 +5,7 @@
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     animation: animate-in 1s ease-out forwards;
+    padding-top: 25px;
 }
 
 .title {
