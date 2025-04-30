@@ -193,7 +193,6 @@ function TextDisplay({
             });
             return;
         }
-
         // Handle regular character input
         else {
             const newPart = { text: key, style: { ...currentStyleRef } };
